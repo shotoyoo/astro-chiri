@@ -4,7 +4,7 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 
 dayjs.extend(localizedFormat);
 
-const { title, cover, desc, audioUrl, id, date, duration } = Astro.props;
+const { title, cover, desc, audioUrl, youtubeId, id, date, duration } = Astro.props;
 
 const coverImage = cover || "cover-images/defaultCover.jpg";
 const displayDate = dayjs(date).format("ll");
@@ -53,6 +53,7 @@ const displayDuration = formatTime(duration);
         class="card-pay-buttons"
         id={id}
         data-audio-url={audioUrl}
+        data-youtube-id={youtubeId}
         aria-label="Play and pause"
       />
       <div class="swap-off">

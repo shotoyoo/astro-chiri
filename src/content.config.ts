@@ -28,7 +28,8 @@ const audio = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    audioUrl: z.string(),
+    audioUrl: z.string(), // YouTube URL or local audio file path
+    youtubeId: z.string().optional(), // YouTube video ID (e.g., "dQw4w9WgXcQ")
     date: z.string(),
     duration: z.string(),
     size: z.number().optional(),

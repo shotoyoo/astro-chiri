@@ -13,7 +13,24 @@ export async function getFilteredPosts() {
  */
 export async function getSortedFilteredPosts() {
   const posts = await getFilteredPosts()
-  return posts.sort(
+  
+  // 「当団について」の投稿の日付を本日+1日に動的に設定
+  const processedPosts = posts.map((post: CollectionEntry<'posts'>) => {
+    if (post.data.title === '当団について') {
+      const tomorrow = new Date()
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      return {
+        ...post,
+        data: {
+          ...post.data,
+          pubDate: tomorrow
+        }
+      }
+    }
+    return post
+  })
+  
+  return processedPosts.sort(
     (a: CollectionEntry<'posts'>, b: CollectionEntry<'posts'>) =>
       b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
   )

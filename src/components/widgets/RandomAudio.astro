@@ -13,6 +13,7 @@ const randomAudio = await getRandomAudio()
       cover={randomAudio.data.cover || "cover-images/defaultCover.jpg"}
       desc={randomAudio.data.description}
       audioUrl={randomAudio.data.audioUrl}
+      youtubeId={randomAudio.data.youtubeId}
       date={randomAudio.data.date}
       duration={parseDuration(randomAudio.data.duration)}
       id={randomAudio.id}
