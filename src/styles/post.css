@@ -12,16 +12,20 @@
 
 /* Post title section */
 .prose .title {
+  font-size: var(--font-size-l);
   margin-bottom: 2.5em;
 }
 
 .prose .title h1 {
+  font-size: var(--font-size-l);
   margin: 0 0 0.375rem 0;
 }
 
 /* Headings (h1-h5)
  Adjust size or spacing below if needed. */
-.prose h1,
+.prose h1 {
+  font-size: var(--font-size-l);
+}
 .prose h2,
 .prose h3,
 .prose h4,

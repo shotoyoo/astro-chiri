@@ -15,6 +15,7 @@ import { themeConfig } from './src/config'
 import { imageConfig } from './src/utils/image-config'
 import path from 'path'
 import netlify from '@astrojs/netlify'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   adapter: netlify(), // Set adapter for deployment, or set `linkCard` to `false` in `src/config.ts`
@@ -41,6 +42,7 @@ export default defineConfig({
     sitemap()
   ],
   vite: {
+    plugins: [tailwindcss()],
     resolve: {
       alias: {
         '@': path.resolve('./src')

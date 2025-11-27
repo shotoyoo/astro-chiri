@@ -6,6 +6,8 @@ import { themeConfig } from '@/config'
 const { posts } = Astro.props as PostListProps
 ---
 
+<h2 class="mb-4">🎵 読みもの</h2>
+
 <ul>
   {
     posts.map((post) => (
@@ -39,6 +41,7 @@ const { posts } = Astro.props as PostListProps
 <style>
   ul {
     padding: 0;
+    padding-left: 1.5rem;
     margin: 0;
     list-style-type: none;
     display: flex;

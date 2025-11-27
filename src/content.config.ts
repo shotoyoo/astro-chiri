@@ -21,4 +21,19 @@ const about = defineCollection({
   schema: z.object({})
 })
 
-export const collections = { posts, about }
+const audio = defineCollection({
+  // Load Markdown files in the `src/content/audio/` directory.
+  loader: glob({ base: './src/content/audio', pattern: '**/*.md' }),
+  // Type-check frontmatter using a schema
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    audioUrl: z.string(),
+    date: z.string(),
+    duration: z.string(),
+    size: z.number().optional(),
+    cover: z.string().optional()
+  })
+})
+
+export const collections = { posts, about, audio }

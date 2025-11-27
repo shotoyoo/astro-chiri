@@ -1,0 +1,21 @@
+---
+import AudioCard from '@/components/widgets/AudioCard.astro'
+import { getRandomAudio, parseDuration } from '@/utils/audio'
+
+const randomAudio = await getRandomAudio()
+---
+
+<h2 class="mb-2">🎵 最近の音 (リロードするたびに変わるかもしれません)</h2>
+{randomAudio && (
+  <div class="card bg-base-100 mt-1 mb-8 min-w-full p-3 pb-3 shadow-md">
+    <AudioCard
+      title={randomAudio.data.title}
+      cover={randomAudio.data.cover || "cover-images/defaultCover.jpg"}
+      desc={randomAudio.data.description}
+      audioUrl={randomAudio.data.audioUrl}
+      date={randomAudio.data.date}
+      duration={parseDuration(randomAudio.data.duration)}
+      id={randomAudio.id}
+    />
+  </div>
+)}

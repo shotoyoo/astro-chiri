@@ -1,0 +1,108 @@
+---
+import dayjs from "dayjs";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+
+dayjs.extend(localizedFormat);
+
+const { title, cover, desc, audioUrl, id, date, duration } = Astro.props;
+
+const coverImage = cover || "cover-images/defaultCover.jpg";
+const displayDate = dayjs(date).format("ll");
+
+function formatTime(secs: number) {
+  if (typeof secs !== "number" || Number.isNaN(secs) || secs < 0) {
+    return "00:00";
+  }
+
+  const hours = Math.floor(secs / 3600);
+  const minutes = Math.floor((secs % 3600) / 60);
+  const seconds = Math.floor(secs % 60);
+  const formattedMinutes = minutes.toString().padStart(2, "0");
+  const formattedSeconds = seconds.toString().padStart(2, "0");
+
+  return hours > 0
+    ? `${hours}:${formattedMinutes}:${formattedSeconds}`
+    : `${formattedMinutes}:${formattedSeconds}`;
+}
+
+const displayDuration = formatTime(duration);
+---
+
+<div class="audio-card" data-active="false">
+  <div class="hero-content flex-row items-start">
+    <img
+      src={coverImage}
+      alt={title}
+      class="h-[4.5rem] w-[4.5rem] rounded-md object-cover shadow-lg md:h-24 md:w-24"
+    />
+
+    <div class="w-full grow overflow-auto">
+      <h2 class="audio-card-title truncate font-semibold">{title}</h2>
+      <p class="text-xs font-medium opacity-90">
+        {displayDuration} • {displayDate}
+      </p>
+      <p class="my-1 line-clamp-2 text-xs md:text-sm">{desc}</p>
+    </div>
+
+    <label
+      class="btn btn-circle swap md:mx-2 shrink-0"
+      aria-label="Toggle play and pause"
+    >
+      <input
+        type="checkbox"
+        class="card-pay-buttons"
+        id={id}
+        data-audio-url={audioUrl}
+        aria-label="Play and pause"
+      />
+      <div class="swap-off">
+        <!-- Play icon -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <polygon
+            points="5 3 19 12 5 21 5 3"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"></polygon>
+        </svg>
+      </div>
+      <div class="swap-on">
+        <!-- Pause icon -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <rect x="6" y="4" width="4" height="16" stroke-width="2"></rect>
+          <rect x="14" y="4" width="4" height="16" stroke-width="2"></rect>
+        </svg>
+      </div>
+    </label>
+  </div>
+
+  <hr class="border-base-content my-3 opacity-[.15]" />
+</div>
+
+<style>
+  .audio-card:last-child hr {
+    display: none;
+  }
+
+  /* Title styling with CSS variable */
+  .audio-card-title {
+    font-size: var(--font-size-s);
+  }
+
+  /* Optional: Highlight active card */
+  .audio-card[data-active="true"] {
+    background-color: rgba(0, 0, 0, 0.05); /* subtle highlight */
+    border-radius: 0.5rem;
+  }
+</style>

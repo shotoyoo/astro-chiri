@@ -1,5 +1,11 @@
 @import './fonts.css';
 @import './post.css';
+@import "tailwindcss";
+@plugin "daisyui";
+
+@theme {
+  /* ここにカスタムテーマ設定があれば追加 */
+}
 
 :root {
   /* Min Content Width */
