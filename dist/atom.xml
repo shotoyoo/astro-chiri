@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="/feeds/atom-style.xsl"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://astro-chiri.netlify.app</id>
+    <title>やまなみコーラスクラブのHP(工事中)</title>
+    <updated>2025-12-01T14:14:54.522Z</updated>
+    <generator>Astro Chiri Feed Generator</generator>
+    <author>
+        <name>yamanami choir</name>
+        <uri>https://astro-chiri.netlify.app</uri>
+    </author>
+    <link rel="alternate" href="https://astro-chiri.netlify.app"/>
+    <link rel="self" href="https://astro-chiri.netlify.app/atom.xml"/>
+    <subtitle>Minimal blog built by Astro</subtitle>
+    <rights>Copyright © 2025 yamanami choir</rights>
+    <entry>
+        <title type="html"><![CDATA[当団について]]></title>
+        <id>https://astro-chiri.netlify.app/%E5%BD%93%E5%9B%A3%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6</id>
+        <link href="https://astro-chiri.netlify.app/%E5%BD%93%E5%9B%A3%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6"/>
+        <updated>9999-11-25T00:00:00.000Z</updated>
+        <content type="html"><![CDATA[<p>こんにちは<br />
+あとで何か書くよ</p>
+]]></content>
+        <published>9999-11-25T00:00:00.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[演奏履歴]]></title>
+        <id>https://astro-chiri.netlify.app/%E6%BC%94%E5%A5%8F%E5%B1%A5%E6%AD%B4</id>
+        <link href="https://astro-chiri.netlify.app/%E6%BC%94%E5%A5%8F%E5%B1%A5%E6%AD%B4"/>
+        <updated>2025-12-02T00:00:00.000Z</updated>
+        <content type="html"><![CDATA[<p>あとで書くよ</p>
+]]></content>
+        <published>2025-12-02T00:00:00.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[リンク集]]></title>
+        <id>https://astro-chiri.netlify.app/%E3%83%AA%E3%83%B3%E3%82%AF%E9%9B%86</id>
+        <link href="https://astro-chiri.netlify.app/%E3%83%AA%E3%83%B3%E3%82%AF%E9%9B%86"/>
+        <updated>2025-12-01T00:00:00.000Z</updated>
+        <content type="html"><![CDATA[<ul>
+<li><a href="https://www5.hp-ez.com/hp/yusei/top">「遊声」</a>
+<ul>
+<li><a href="https://www.youtube.com/@yusei_since1997">YouTube</a></li>
+<li><a href="https://x.com/yusei_web?s=20">X</a></li>
+</ul>
+</li>
+<li><a href="https://corosono.info/">東京大学コーロ・ソーノ合唱団</a></li>
+<li><a href="https://en2007.web.fc2.com/">合唱集団 ～ 宴 ～</a></li>
+</ul>
+]]></content>
+        <published>2025-12-01T00:00:00.000Z</published>
+    </entry>
+</feed>
