@@ -8,6 +8,7 @@ declare global {
 }
 
 let youtubePlayer: any = null;
+let youtubePlayerReady = false;
 let currentPlayerType: 'audio' | 'youtube' | null = null;
 let updateInterval: number | null = null;
 
@@ -59,15 +60,18 @@ export function initAudioPlayer() {
 
   function onPlayerReady() {
     console.log('YouTube player ready');
+    youtubePlayerReady = true;
   }
 
   function onPlayerStateChange(event: any) {
     if (event.data === window.YT.PlayerState.PLAYING) {
       playToggle.checked = true;
       startYouTubeUpdateInterval();
+      disableOtherButtons(null);
     } else if (event.data === window.YT.PlayerState.PAUSED || event.data === window.YT.PlayerState.ENDED) {
       playToggle.checked = false;
       stopUpdateInterval();
+      disableOtherButtons(null);
     }
   }
 
@@ -188,20 +192,59 @@ export function initAudioPlayer() {
       setTimeout(() => musicPlayer?.classList.remove("opacity-0"), 100);
 
       // Check if YouTube or audio
-      if (youtubeId && youtubePlayer) {
-        // YouTube playback
-        currentPlayerType = 'youtube';
+      if (youtubeId) {
+        // Check if YouTube player is ready
+        if (!youtubePlayerReady) {
+          console.log('YouTube player not ready yet, waiting...');
+          // Wait for player to be ready and try again
+          const waitForPlayer = window.setInterval(() => {
+            if (youtubePlayerReady) {
+              clearInterval(waitForPlayer);
+              btn.click(); // Retry the click
+            }
+          }, 100);
+          return;
+        }
+
+        // Check if it's the same YouTube video
+        const currentVideoUrl = youtubePlayer.getVideoUrl();
+        const isSameVideo = currentVideoUrl && currentVideoUrl.includes(youtubeId);
+        
+        console.log('YouTube button clicked:', {
+          youtubeId,
+          currentVideoUrl,
+          isSameVideo,
+          currentPlayerType,
+          playerState: youtubePlayer.getPlayerState()
+        });
+
+        if (isSameVideo && currentPlayerType === 'youtube') {
+          // Same video - toggle play/pause
+          const state = youtubePlayer.getPlayerState();
+          console.log('Toggling play/pause, current state:', state);
+          if (state === window.YT.PlayerState.PLAYING) {
+            youtubePlayer.pauseVideo();
+          } else {
+            youtubePlayer.playVideo();
+          }
+          return;
+        }
+
+        // YouTube playback (new video)
         audio.pause();
         audio.src = '';
 
         audioLoading?.classList.remove("hidden");
         audioControl?.classList.add("hidden");
 
+        // Set player type immediately before loading video
+        currentPlayerType = 'youtube';
+        
         youtubePlayer.loadVideoById(youtubeId);
         youtubePlayer.playVideo();
 
         // Update duration when available
-        const checkDuration = setInterval(() => {
+        const checkDuration = window.setInterval(() => {
           const duration = youtubePlayer.getDuration();
           if (duration > 0) {
             durationDisplay!.textContent = formatTime(duration);
@@ -261,7 +304,7 @@ export function initAudioPlayer() {
       let isSameMedia = false;
       if (currentPlayerType === 'youtube' && btnYoutubeId && youtubePlayer) {
         const currentVideoUrl = youtubePlayer.getVideoUrl();
-        isSameMedia = currentVideoUrl.includes(btnYoutubeId);
+        isSameMedia = currentVideoUrl ? currentVideoUrl.includes(btnYoutubeId) : false;
       } else if (currentPlayerType === 'audio' && btnUrl) {
         const fullUrl = normalizeUrl(btnUrl);
         isSameMedia = normalizeUrl(audio.src) === fullUrl;

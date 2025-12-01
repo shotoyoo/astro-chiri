@@ -26,18 +26,25 @@ function formatTime(secs: number) {
 }
 
 const displayDuration = formatTime(duration);
+
+// YouTubeリンクの場合の処理
+const isYouTube = !!youtubeId;
+const displayTitle = isYouTube ? `${title} (from YouTube)` : title;
+const youtubeUrl = youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : null;
 ---
 
 <div class="audio-card" data-active="false">
   <div class="hero-content flex-row items-start">
-    <img
-      src={coverImage}
-      alt={title}
-      class="h-[4.5rem] w-[4.5rem] rounded-md object-cover shadow-lg md:h-24 md:w-24"
-    />
-
     <div class="w-full grow overflow-auto">
-      <h2 class="audio-card-title truncate font-semibold">{title}</h2>
+      {isYouTube && youtubeUrl ? (
+        <h2 class="audio-card-title truncate font-semibold">
+          <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" class="youtube-title-link">
+            {displayTitle}
+          </a>
+        </h2>
+      ) : (
+        <h2 class="audio-card-title truncate font-semibold">{displayTitle}</h2>
+      )}
       <p class="text-xs font-medium opacity-90">
         {displayDuration} • {displayDate}
       </p>
@@ -99,6 +106,18 @@ const displayDuration = formatTime(duration);
   /* Title styling with CSS variable */
   .audio-card-title {
     font-size: var(--font-size-s);
+  }
+
+  /* YouTube title link styling */
+  .youtube-title-link {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .youtube-title-link:hover {
+    opacity: 0.7;
+    text-decoration: underline;
   }
 
   /* Optional: Highlight active card */

@@ -28,3 +28,4 @@ pnpm-debug.log*
 .netlify/
 
 **Zone.Identifier
+src/audio
