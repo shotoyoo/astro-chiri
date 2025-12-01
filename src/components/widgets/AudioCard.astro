@@ -16,19 +16,26 @@ const youtubeUrl = youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : 
 const youtubeThumbnail = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg` : null;
 ---
 
-<div class="audio-card" data-active="false">
+<div class="audio-card min-h-[100px]" data-active="false">
   <div class="hero-content flex-row items-start py-2 gap-3">
     {isYouTube && youtubeThumbnail && (
-      <div class="shrink-0">
+      <div class="shrink-0 relative" style="width:120px;height:67px;">
         <a href={youtubeUrl} target="_blank" rel="noopener noreferrer">
           <img 
             src={youtubeThumbnail} 
             alt={`${title} thumbnail`}
-            class="youtube-thumbnail rounded-lg"
+            class="youtube-thumbnail rounded-lg block"
             width="120"
-            height="67.5"
+            height="67"
           />
         </a>
+        <button
+          class="youtube-thumb-btn absolute left-0 bottom-0 m-2 flex items-center justify-center bg-transparent"
+          aria-label="YouTube動画を再生"
+          type="button"
+          data-youtube-id={youtubeId}
+          style="display:none;"
+        ></button>
       </div>
     )}
     <div class="w-full grow overflow-auto">
