@@ -11,16 +11,34 @@ const displayDate = dayjs(date).format("ll");
 
 // YouTubeリンクの場合の処理
 const isYouTube = !!youtubeId;
-const displayTitle = isYouTube ? `${title} (from YouTube)` : title;
+const displayTitle = title;
 const youtubeUrl = youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : null;
+const youtubeThumbnail = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg` : null;
 ---
 
 <div class="audio-card" data-active="false">
-  <div class="hero-content flex-row items-start py-2">
+  <div class="hero-content flex-row items-start py-2 gap-3">
+    {isYouTube && youtubeThumbnail && (
+      <div class="shrink-0">
+        <a href={youtubeUrl} target="_blank" rel="noopener noreferrer">
+          <img 
+            src={youtubeThumbnail} 
+            alt={`${title} thumbnail`}
+            class="youtube-thumbnail rounded-lg"
+            width="120"
+            height="67.5"
+          />
+        </a>
+      </div>
+    )}
     <div class="w-full grow overflow-auto">
       {isYouTube && youtubeUrl ? (
-        <h2 class="audio-card-title truncate font-semibold">
-          <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" class="youtube-title-link">
+        <h2 class="audio-card-title truncate font-semibold flex items-center gap-1">
+          <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" class="youtube-title-link flex items-center gap-1">
+            <svg class="youtube-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;">
+              <rect width="24" height="24" rx="4" fill="#FF0000"/>
+              <polygon points="7,6 19,12 7,18" fill="#fff"/>
+            </svg>
             {displayTitle}
           </a>
         </h2>
@@ -100,6 +118,26 @@ const youtubeUrl = youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : 
   .youtube-title-link:hover {
     opacity: 0.7;
     text-decoration: underline;
+  }
+
+  /* YouTube thumbnail styling */
+  .youtube-thumbnail {
+    width: 120px;
+    height: 67.5px;
+    object-fit: cover;
+    transition: opacity 0.2s ease;
+  }
+
+  .youtube-thumbnail:hover {
+    opacity: 0.8;
+  }
+
+  .youtube-icon {
+    display: inline-block;
+    margin-right: 0.1em;
+    vertical-align: middle;
+    width: 14px;
+    height: 14px;
   }
 
   /* Optional: Highlight active card */

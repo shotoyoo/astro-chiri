@@ -3,11 +3,11 @@ import type { ThemeConfig } from './types'
 export const themeConfig: ThemeConfig = {
   // SITE INFO ///////////////////////////////////////////////////////////////////////////////////////////
   site: {
-    website: 'https://astro-chiri.netlify.app/', // Site domain
+    website: 'https://yamanami-choir-club.netlify.app/', // Site domain
     title: 'やまなみコーラスクラブのHP(工事中)', // Site title
-    author: 'yamanami choir', // Author name
-    description: 'Minimal blog built by Astro', // Site description
-    language: 'jp' // Default language
+    author: 'yamanami choir club', // Author name
+    description: '東京を中心に活動する合唱団「やまなみコーラスクラブ」の公式サイト(永遠に工事中)です。', // Site description
+    language: 'ja' // Default language
   },
 
   // GENERAL SETTINGS ////////////////////////////////////////////////////////////////////////////////////
