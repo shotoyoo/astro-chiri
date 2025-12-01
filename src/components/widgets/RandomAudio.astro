@@ -1,22 +1,51 @@
 ---
 import AudioCard from '@/components/widgets/AudioCard.astro'
-import { getRandomAudio, parseDuration } from '@/utils/audio'
+import { getCollection } from 'astro:content'
+import { parseDuration } from '@/utils/audio'
 
-const randomAudio = await getRandomAudio()
+// Get all audio files from the top level only
+const allAudio = await getCollection('audio')
+const topLevelAudio = allAudio.filter(audio => !audio.id.includes('/'))
 ---
 
 <h2 class="mb-2">🎵 最近の音 (リロードするたびに変わるかもしれません)</h2>
-{randomAudio && (
-  <div class="card bg-base-100 mt-1 mb-8 min-w-full p-3 pb-3 shadow-md">
-    <AudioCard
-      title={randomAudio.data.title}
-      cover={randomAudio.data.cover || "cover-images/defaultCover.jpg"}
-      desc={randomAudio.data.description}
-      audioUrl={randomAudio.data.audioUrl}
-      youtubeId={randomAudio.data.youtubeId}
-      date={randomAudio.data.date}
-      duration={parseDuration(randomAudio.data.duration)}
-      id={randomAudio.id}
-    />
-  </div>
-)}
+<div id="random-audio-container" class="card bg-base-100 mt-1 mb-8 min-w-full p-3 pb-3 shadow-md">
+  {topLevelAudio.map((audio) => (
+    <div class="audio-card-item hidden" data-audio-id={audio.id}>
+      <AudioCard
+        title={audio.data.title}
+        cover={audio.data.cover || "cover-images/defaultCover.jpg"}
+        desc={audio.data.description}
+        audioUrl={audio.data.audioUrl}
+        youtubeId={audio.data.youtubeId}
+        date={audio.data.date}
+        duration={parseDuration(audio.data.duration)}
+        id={audio.id}
+      />
+    </div>
+  ))}
+</div>
+
+<script>
+  // Client-side random selection
+  function showRandomAudio() {
+    const container = document.getElementById('random-audio-container')
+    if (!container) return
+    
+    const audioItems = container.querySelectorAll('.audio-card-item')
+    if (audioItems.length === 0) return
+    
+    // Hide all items
+    audioItems.forEach(item => item.classList.add('hidden'))
+    
+    // Show a random one
+    const randomIndex = Math.floor(Math.random() * audioItems.length)
+    audioItems[randomIndex].classList.remove('hidden')
+  }
+  
+  // Run on page load
+  showRandomAudio()
+  
+  // Re-run on view transitions
+  document.addEventListener('astro:page-load', showRandomAudio)
+</script>

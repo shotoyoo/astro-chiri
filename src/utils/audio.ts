@@ -8,12 +8,15 @@ import type { CollectionEntry } from 'astro:content'
 export async function getRandomAudio(): Promise<CollectionEntry<'audio'> | null> {
   const audioFiles = await getCollection('audio')
   
-  if (audioFiles.length === 0) {
+  // Filter to only include files directly in the audio folder (not in subdirectories)
+  const topLevelAudioFiles = audioFiles.filter(audio => !audio.id.includes('/'))
+  
+  if (topLevelAudioFiles.length === 0) {
     return null
   }
   
-  const randomIndex = Math.floor(Math.random() * audioFiles.length)
-  return audioFiles[randomIndex]
+  const randomIndex = Math.floor(Math.random() * topLevelAudioFiles.length)
+  return topLevelAudioFiles[randomIndex]
 }
 
 /**
