@@ -33,7 +33,7 @@ export const { getStaticPaths, GET } = OGImageRoute({
         size: 68,
         weight: 'SemiBold',
         families: ['PingFang SC']
-      },
+      }, 
       description: {
         color: [180, 180, 180],
         size: 40,
