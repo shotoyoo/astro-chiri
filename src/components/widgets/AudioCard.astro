@@ -4,28 +4,10 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 
 dayjs.extend(localizedFormat);
 
-const { title, cover, desc, audioUrl, youtubeId, id, date, duration } = Astro.props;
+const { title, cover, desc, audioUrl, youtubeId, id, date } = Astro.props;
 
 const coverImage = cover || "cover-images/defaultCover.jpg";
 const displayDate = dayjs(date).format("ll");
-
-function formatTime(secs: number) {
-  if (typeof secs !== "number" || Number.isNaN(secs) || secs < 0) {
-    return "00:00";
-  }
-
-  const hours = Math.floor(secs / 3600);
-  const minutes = Math.floor((secs % 3600) / 60);
-  const seconds = Math.floor(secs % 60);
-  const formattedMinutes = minutes.toString().padStart(2, "0");
-  const formattedSeconds = seconds.toString().padStart(2, "0");
-
-  return hours > 0
-    ? `${hours}:${formattedMinutes}:${formattedSeconds}`
-    : `${formattedMinutes}:${formattedSeconds}`;
-}
-
-const displayDuration = formatTime(duration);
 
 // YouTubeリンクの場合の処理
 const isYouTube = !!youtubeId;
@@ -34,7 +16,7 @@ const youtubeUrl = youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : 
 ---
 
 <div class="audio-card" data-active="false">
-  <div class="hero-content flex-row items-start">
+  <div class="hero-content flex-row items-start py-2">
     <div class="w-full grow overflow-auto">
       {isYouTube && youtubeUrl ? (
         <h2 class="audio-card-title truncate font-semibold">
@@ -46,7 +28,7 @@ const youtubeUrl = youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : 
         <h2 class="audio-card-title truncate font-semibold">{displayTitle}</h2>
       )}
       <p class="text-xs font-medium opacity-90">
-        {displayDuration} • {displayDate}
+        {displayDate}
       </p>
       <p class="my-1 line-clamp-2 text-xs md:text-sm">{desc}</p>
     </div>
@@ -95,7 +77,7 @@ const youtubeUrl = youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : 
     </label>
   </div>
 
-  <hr class="border-base-content my-3 opacity-[.15]" />
+  <hr class="border-base-content my-2 opacity-[.15]" />
 </div>
 
 <style>

@@ -22,7 +22,7 @@ const about = defineCollection({
 })
 
 const audio = defineCollection({
-  // Load Markdown files in the `src/content/audio/` directory.
+  // Load all Markdown files in `src/content/audio/` directory including subdirectories.
   loader: glob({ base: './src/content/audio', pattern: '**/*.md' }),
   // Type-check frontmatter using a schema
   schema: z.object({
@@ -31,7 +31,6 @@ const audio = defineCollection({
     audioUrl: z.string(), // YouTube URL or local audio file path
     youtubeId: z.string().optional(), // YouTube video ID (e.g., "dQw4w9WgXcQ")
     date: z.string(),
-    duration: z.string(),
     size: z.number().optional(),
     cover: z.string().optional()
   })

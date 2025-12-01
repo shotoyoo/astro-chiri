@@ -12,7 +12,9 @@ const posts = await getSortedFilteredPosts()
 
 <IndexLayout title={themeConfig.site.title} description={themeConfig.site.description}>
   <About />
-  <RandomAudio />
+  <h2 class="mb-2">🎵 聴くもの (リロードするたびに変わるかもしれません)</h2>
+  <RandomAudio directory="recently" description="最近の音" />
+  <RandomAudio directory="pickup" description="ピックアップ過去音源" />
   <main>
     <PostList posts={posts} />
   </main>

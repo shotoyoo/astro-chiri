@@ -1,16 +1,31 @@
 ---
 import AudioCard from '@/components/widgets/AudioCard.astro'
 import { getCollection } from 'astro:content'
-import { parseDuration } from '@/utils/audio'
 
-// Get all audio files from the top level only
+interface Props {
+  /**
+   * Directory path within content/audio to scan (e.g., "featured", "recent")
+   * If not provided or empty string, scans the root audio directory
+   */
+  directory?: string
+  description?: string
+}
+
+const { directory = '', description = '' } = Astro.props
+
+// Generate unique ID for this instance
+const containerId = `random-audio-container-${directory || 'root'}`
+
+// Get all audio files and filter by directory if specified
 const allAudio = await getCollection('audio')
-const topLevelAudio = allAudio.filter(audio => !audio.id.includes('/'))
+const filteredAudio = directory 
+  ? allAudio.filter(audio => audio.id.startsWith(`${directory}/`))
+  : allAudio.filter(audio => !audio.id.includes('/')) // Root level only if no directory specified
 ---
 
-<h2 class="mb-2">🎵 最近の音 (リロードするたびに変わるかもしれません)</h2>
-<div id="random-audio-container" class="card bg-base-100 mt-1 mb-8 min-w-full p-3 pb-3 shadow-md">
-  {topLevelAudio.map((audio) => (
+<h3 class="mb-1">{description}</h3>
+<div id={containerId} class="card bg-base-100 mt-1 mb-4 min-w-full p-2 pb-2 shadow-md">
+  {filteredAudio.map((audio) => (
     <div class="audio-card-item hidden" data-audio-id={audio.id}>
       <AudioCard
         title={audio.data.title}
@@ -19,17 +34,16 @@ const topLevelAudio = allAudio.filter(audio => !audio.id.includes('/'))
         audioUrl={audio.data.audioUrl}
         youtubeId={audio.data.youtubeId}
         date={audio.data.date}
-        duration={parseDuration(audio.data.duration)}
         id={audio.id}
       />
     </div>
   ))}
 </div>
 
-<script>
+<script define:vars={{ containerId }}>
   // Client-side random selection
   function showRandomAudio() {
-    const container = document.getElementById('random-audio-container')
+    const container = document.getElementById(containerId)
     if (!container) return
     
     const audioItems = container.querySelectorAll('.audio-card-item')
@@ -48,4 +62,5 @@ const topLevelAudio = allAudio.filter(audio => !audio.id.includes('/'))
   
   // Re-run on view transitions
   document.addEventListener('astro:page-load', showRandomAudio)
+</script>
 </script>
