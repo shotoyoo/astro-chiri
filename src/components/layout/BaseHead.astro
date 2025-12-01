@@ -9,7 +9,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site)
 
 const { title, description, ogImage } = Astro.props as BaseHeadProps
 // Add version query parameter to bust cache when image changes
-const defaultOgImage = '/og/yamanami-og.png?v=1'
+const defaultOgImage = '/og/yamanami-og.png'
 const imageUrl = ogImage ? new URL(ogImage, Astro.url) : new URL(defaultOgImage, Astro.url)
 ---
 
