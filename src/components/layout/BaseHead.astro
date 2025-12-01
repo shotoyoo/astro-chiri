@@ -8,7 +8,9 @@ import 'katex/dist/katex.min.css'
 const canonicalURL = new URL(Astro.url.pathname, Astro.site)
 
 const { title, description, ogImage } = Astro.props as BaseHeadProps
-const imageUrl = ogImage ? new URL(ogImage, Astro.url) : new URL('/og/chiri-og.png', Astro.url)
+// Add version query parameter to bust cache when image changes
+const defaultOgImage = '/og/yamanami-og.png?v=1'
+const imageUrl = ogImage ? new URL(ogImage, Astro.url) : new URL(defaultOgImage, Astro.url)
 ---
 
 <!-- Global Metadata -->
