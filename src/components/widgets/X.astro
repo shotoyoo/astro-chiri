@@ -1,0 +1,72 @@
+---
+/**
+ * X (Twitter) Timeline Component
+ * Displays tweets from a specific account
+ * 
+ * Props:
+ * @param account - X account username (without @)
+ * @param height - Timeline height (default: 600)
+ * @param width - Timeline width (default: auto)
+ * @param theme - 'light' or 'dark' (default: light)
+ * @param tweetLimit - Number of tweets to show (default: 5)
+ * @param chrome - Space-separated list of: noheader, nofooter, noborders, noscrollbar, transparent
+ */
+
+interface Props {
+  account: string
+  height?: number
+  width?: string | number
+  theme?: 'light' | 'dark'
+  tweetLimit?: number
+  chrome?: string
+}
+
+const { 
+  account, 
+  height = 600, 
+  width = 'auto',
+  theme = 'light',
+  tweetLimit = 5,
+  chrome = ''
+} = Astro.props
+---
+
+<div class="x-timeline-container">
+  <a 
+    class="twitter-timeline" 
+    href={`https://twitter.com/${account}?ref_src=twsrc%5Etfw`}
+    data-height={height}
+    data-width={width}
+    data-theme={theme}
+    data-tweet-limit={tweetLimit}
+    data-chrome={chrome}
+  >
+    Tweets by @{account}
+  </a>
+</div>
+
+<script is:inline>
+  // Load Twitter widgets script only once
+  if (!window.twttr) {
+    const script = document.createElement('script');
+    script.src = 'https://platform.twitter.com/widgets.js';
+    script.async = true;
+    script.charset = 'utf-8';
+    document.body.appendChild(script);
+  } else if (window.twttr?.widgets) {
+    // Reload widgets if script is already loaded
+    window.twttr.widgets.load();
+  }
+</script>
+
+<style>
+  .x-timeline-container {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+  }
+  
+  .x-timeline-container :global(.twitter-timeline) {
+    max-width: 100%;
+  }
+</style>

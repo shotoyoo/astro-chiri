@@ -14,7 +14,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "new": "tsx scripts/new-post.ts",
-    "update-theme": "tsx scripts/update-theme.ts"
+    "update-theme": "tsx scripts/update-theme.ts",
+    "upload-audio": "tsx scripts/upload-audio.ts"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.12",

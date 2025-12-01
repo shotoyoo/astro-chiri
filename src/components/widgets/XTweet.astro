@@ -1,0 +1,73 @@
+---
+/**
+ * X (Twitter) Single Tweet Component
+ * Embeds a specific tweet
+ * 
+ * Props:
+ * @param tweetId - The tweet ID from the URL
+ * @param theme - 'light' or 'dark' (default: light)
+ * @param conversation - Show conversation thread (default: none)
+ * @param align - 'left', 'center', or 'right' (default: center)
+ */
+
+interface Props {
+  tweetId: string
+  theme?: 'light' | 'dark'
+  conversation?: 'none' | 'all'
+  align?: 'left' | 'center' | 'right'
+}
+
+const { 
+  tweetId,
+  theme = 'light',
+  conversation = 'none',
+  align = 'center'
+} = Astro.props
+
+const tweetUrl = `https://twitter.com/x/status/${tweetId}`
+---
+
+<div class={`x-tweet-container align-${align}`}>
+  <blockquote 
+    class="twitter-tweet" 
+    data-theme={theme}
+    data-conversation={conversation}
+  >
+    <a href={tweetUrl}></a>
+  </blockquote>
+</div>
+
+<script is:inline>
+  // Load Twitter widgets script only once
+  if (!window.twttr) {
+    const script = document.createElement('script');
+    script.src = 'https://platform.twitter.com/widgets.js';
+    script.async = true;
+    script.charset = 'utf-8';
+    document.body.appendChild(script);
+  } else if (window.twttr?.widgets) {
+    // Reload widgets if script is already loaded
+    window.twttr.widgets.load();
+  }
+</script>
+
+<style>
+  .x-tweet-container {
+    margin: 2rem 0;
+  }
+  
+  .x-tweet-container.align-left {
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+  .x-tweet-container.align-center {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .x-tweet-container.align-right {
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>

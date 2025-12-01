@@ -1,0 +1,52 @@
+---
+import '@/styles/global.css'
+import type { PostLayoutProps } from '@/types'
+import BaseHead from '@/components/layout/BaseHead.astro'
+import Footer from '@/components/layout/Footer.astro'
+import BackButton from '@/components/ui/BackButton.astro'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { themeConfig } from '@/config'
+
+const { title, pubDate } = Astro.props as PostLayoutProps
+
+const postSlug = Astro.url.pathname.split('/').filter(Boolean).pop() || ''
+const ogImage = `/open-graph/${postSlug}.png`
+---
+
+<BaseLayout
+  title={`${title} · ${themeConfig.site.title}`}
+  description={themeConfig.site.description}
+  type="post"
+>
+  <BaseHead
+    title={`${title} · ${themeConfig.site.title}`}
+    description={themeConfig.site.description}
+    ogImage={ogImage}
+    slot="head"
+  />
+  <div class="simple-post-container">
+    <main>
+      <div class="prose">
+        <BackButton />
+        <div class="title">
+          <h1>{title}</h1>
+        </div>
+        <slot />
+      </div>
+    </main>
+  </div>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .simple-post-container {
+    max-width: 65ch;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  .title h1 {
+    margin-bottom: 1rem;
+    font-size: 2rem;
+  }
+</style>

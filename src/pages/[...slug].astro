@@ -1,6 +1,8 @@
 ---
 import { type CollectionEntry, getCollection } from 'astro:content'
 import PostLayout from '@/layouts/PostLayout.astro'
+import SimplePostLayout from '@/layouts/SimplePostLayout.astro'
+import WidePostLayout from '@/layouts/WidePostLayout.astro'
 import { render } from 'astro:content'
 
 export async function getStaticPaths() {
@@ -20,8 +22,17 @@ const { Content, remarkPluginFrontmatter } = await render(post)
 
 const readingTime = remarkPluginFrontmatter.readingTime
 const toc = remarkPluginFrontmatter.toc || []
+
+// Select layout based on frontmatter
+const layoutType = post.data.layout || 'default'
+const layouts = {
+  default: PostLayout,
+  simple: SimplePostLayout,
+  wide: WidePostLayout,
+}
+const Layout = layouts[layoutType] || PostLayout
 ---
 
-<PostLayout {...post.data} readingTime={readingTime} toc={toc}>
+<Layout {...post.data} readingTime={readingTime} toc={toc}>
   <Content />
-</PostLayout>
+</Layout>

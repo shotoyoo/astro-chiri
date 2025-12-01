@@ -4,6 +4,7 @@ import About from '@/components/widgets/About.astro'
 import RandomAudio from '@/components/widgets/RandomAudio.astro'
 import AudioPlayer from '@/components/widgets/AudioPlayer.astro'
 import PostList from '@/components/widgets/PostList.astro'
+import X from '@/components/widgets/X.astro'
 import { themeConfig } from '@/config'
 import { getSortedFilteredPosts } from '@/utils/draft'
 
@@ -12,11 +13,13 @@ const posts = await getSortedFilteredPosts()
 
 <IndexLayout title={themeConfig.site.title} description={themeConfig.site.description}>
   <About />
-  <h2 class="mb-2">🎵 聴くもの (リロードするたびに変わるかもしれません)</h2>
-  <RandomAudio directory="recently" description="最近の音" />
-  <RandomAudio directory="pickup" description="ピックアップ過去音源" />
   <main>
+    <h2 class="mb-2">🎵 聴くもの (リロードするたびに変わるかもしれません)</h2>
+    <RandomAudio directory="recently" description="最近の音" />
+    <RandomAudio directory="pickup" description="ピックアップ過去音源" />
+    <h2 class="mb-4">📖 読むもの</h2>
     <PostList posts={posts} />
+    <!-- <X account="corosono" height={400} tweetLimit={3} /> -->
   </main>
   <AudioPlayer />
 </IndexLayout>
