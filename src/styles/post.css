@@ -26,14 +26,18 @@
 .prose h1 {
   font-size: var(--font-size-l);
 }
-.prose h2,
+.prose h2 {
+  font-size: var(--font-size-m);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.75;
+  margin: 1.5em 0 1.25em 0;
+}
 .prose h3,
 .prose h4,
 .prose h5 {
   font-size: var(--font-size-m);
-  font-weight: var(--font-weight-bold);
   line-height: 1.75;
-  margin: 3.75em 0 1.75em 0;
+  margin: 0.75em 0 0.5em 0;
 }
 
 /* Bold text */
@@ -211,20 +215,21 @@
   list-style-type: none;
   padding-left: 0;
   margin-left: 1rem;
-  margin-bottom: 1.75em;
+  margin-top: 0em;
+  margin-bottom: 0.75em;
   line-height: 1.75;
 }
 
 .prose ul ul {
   margin-left: 0.625rem;
-  margin-top: 0.5em;
+  margin-top: 0em;
   margin-bottom: 0.5em;
 }
 
 .prose ul li {
   position: relative;
   padding-left: 0.5rem;
-  margin-bottom: 0.5em;
+  margin-bottom: 0.25em;
 }
 
 .prose ul li:last-child {
@@ -364,7 +369,7 @@
 
 /* Horizontal rule */
 .prose hr {
-  margin: 3.75em 0;
+  margin: 0em 0;
   height: auto;
   border: none;
   background: none;
