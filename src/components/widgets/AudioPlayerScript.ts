@@ -179,7 +179,22 @@ export function initAudioPlayer() {
   // Card button click handlers
   playButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      if (!(btn instanceof HTMLInputElement)) return;
+      if (!(btn instanceof HTMLElement)) return;
+
+      // クリック時に即座にアイコンを再生中に切り替え＆全ボタン状態更新
+      disableOtherButtons(btn.id);
+      var clickedIconSpan = btn.querySelector('.play-pause-icon');
+      if (clickedIconSpan) {
+        clickedIconSpan.innerHTML = `<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-5 w-5\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><rect x=\"6\" y=\"4\" width=\"4\" height=\"16\" stroke-width=\"2\"></rect><rect x=\"14\" y=\"4\" width=\"4\" height=\"16\" stroke-width=\"2\"></rect></svg>`;
+      }
+      if (!(btn instanceof HTMLElement)) return;
+
+      // クリック時に即座にアイコンを再生中に切り替え
+      const iconSpan = btn.querySelector('.play-pause-icon');
+      if (iconSpan) {
+        iconSpan.innerHTML = `<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-5 w-5\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><rect x=\"6\" y=\"4\" width=\"4\" height=\"16\" stroke-width=\"2\"></rect><rect x=\"14\" y=\"4\" width=\"4\" height=\"16\" stroke-width=\"2\"></rect></svg>`;
+      }
+      if (!(btn instanceof HTMLElement)) return;
 
       const rawUrl = btn.dataset.audioUrl;
       const youtubeId = btn.dataset.youtubeId;
@@ -192,7 +207,7 @@ export function initAudioPlayer() {
       setTimeout(() => musicPlayer?.classList.remove("opacity-0"), 100);
 
       // Check if YouTube or audio
-      if (youtubeId) {
+  if (youtubeId) {
         // Check if YouTube player is ready
         if (!youtubePlayerReady) {
           console.log('YouTube player not ready yet, waiting...');
@@ -288,14 +303,19 @@ export function initAudioPlayer() {
         audio.load();
         playToggle.checked = true;
         disableOtherButtons(btn.id);
-        audio.play();
+        audio.play().catch(() => {
+          // 再生失敗時はアイコンを元に戻す
+          if (iconSpan) {
+            iconSpan.innerHTML = `<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-5 w-5\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><polygon points=\"5 3 19 12 5 21 5 3\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></polygon></svg>`;
+          }
+        });
       }
     });
   });
 
   function disableOtherButtons(activeId: string | null) {
     playButtons.forEach((btn) => {
-      if (!(btn instanceof HTMLInputElement)) return;
+      if (!(btn instanceof HTMLElement)) return;
 
       const btnUrl = btn.dataset.audioUrl;
       const btnYoutubeId = btn.dataset.youtubeId;
@@ -315,12 +335,17 @@ export function initAudioPlayer() {
         ? (youtubePlayer && youtubePlayer.getPlayerState() === window.YT.PlayerState.PLAYING)
         : !audio.paused;
 
-      const shouldBeChecked = isPlaying && isSameMedia && (isActive || activeId === null);
-      btn.checked = shouldBeChecked;
+      // アイコン切り替え
+      const iconSpan = btn.querySelector('.play-pause-icon');
+      if (iconSpan) {
+        iconSpan.innerHTML = isPlaying && isSameMedia && (isActive || activeId === null)
+          ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="6" y="4" width="4" height="16" stroke-width="2"></rect><rect x="14" y="4" width="4" height="16" stroke-width="2"></rect></svg>`
+          : `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polygon></svg>`;
+      }
 
       const card = btn.closest(".audio-card");
       if (card) {
-        (card as HTMLElement).dataset.active = shouldBeChecked ? "true" : "false";
+        (card as HTMLElement).dataset.active = isPlaying && isSameMedia && (isActive || activeId === null) ? "true" : "false";
       }
     });
   }

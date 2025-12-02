@@ -58,20 +58,16 @@ const youtubeThumbnail = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/mq
       <p class="my-1 line-clamp-2 text-xs md:text-sm">{desc}</p>
     </div>
 
-    <label
-      class="btn btn-circle swap md:mx-2 shrink-0"
+    <button
+      class="btn btn-circle md:mx-2 shrink-0 card-pay-buttons"
       aria-label="Toggle play and pause"
+      type="button"
+      id={id}
+      data-audio-url={audioUrl}
+      data-youtube-id={youtubeId}
     >
-      <input
-        type="checkbox"
-        class="card-pay-buttons"
-        id={id}
-        data-audio-url={audioUrl}
-        data-youtube-id={youtubeId}
-        aria-label="Play and pause"
-      />
-      <div class="swap-off">
-        <!-- Play icon -->
+      <span class="play-pause-icon">
+        <!-- Play/Pause icon will be toggled by JS -->
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="h-5 w-5"
@@ -85,21 +81,8 @@ const youtubeThumbnail = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/mq
             stroke-linecap="round"
             stroke-linejoin="round"></polygon>
         </svg>
-      </div>
-      <div class="swap-on">
-        <!-- Pause icon -->
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <rect x="6" y="4" width="4" height="16" stroke-width="2"></rect>
-          <rect x="14" y="4" width="4" height="16" stroke-width="2"></rect>
-        </svg>
-      </div>
-    </label>
+      </span>
+    </button>
   </div>
 
   <hr class="border-base-content my-2 opacity-[.15]" />
