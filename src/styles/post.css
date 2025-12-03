@@ -48,7 +48,8 @@
 
 /* Italic text */
 .prose em {
-  font-family: var(--serif);
+  /* font-family: var(--serif); */
+  /* font-family: var(--mono); */
   font-style: italic;
   letter-spacing: 0;
 }

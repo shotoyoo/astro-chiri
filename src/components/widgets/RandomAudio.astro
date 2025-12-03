@@ -23,7 +23,7 @@ const filteredAudio = directory
   : allAudio.filter(audio => !audio.id.includes('/')) // Root level only if no directory specified
 ---
 
-<h3 class="mb-1">{description}</h3>
+<h3 class="mb-1" style="margin-left: 1rem;">{description}</h3>
 <div id={containerId} class="card bg-base-100 mt-1 mb-4 min-w-full p-2 pb-2 shadow-md">
   {filteredAudio.map((audio) => (
     <div class="audio-card-item hidden" data-audio-id={audio.id}>

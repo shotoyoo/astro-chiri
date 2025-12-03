@@ -1,0 +1,90 @@
+---
+title: 'レパートリー'
+description: '東京大学音楽部合唱団コールアカデミーの演奏楽曲一覧'
+pubDate: 2025-12-03
+---
+
+import { getCollection } from 'astro:content'
+
+export const history = await getCollection('history')
+
+export const groupedByComposer = history.reduce((acc, item) => {
+  const composer = item.data.composer
+  if (!acc[composer]) {
+    acc[composer] = []
+  }
+  acc[composer].push(item)
+  return acc
+}, {})
+
+export const sortedComposers = Object.keys(groupedByComposer).sort((a, b) => a.localeCompare(b))
+
+<div class="history-list">
+  {sortedComposers.map((composer) => (
+    <div class="composer-group">
+      <h3 class="composer-name">{composer}</h3>
+      <ul class="song-list">
+        {groupedByComposer[composer].map((item) => (
+          <li class="song-item">
+            <span class="song-title">{item.data.title}</span>
+            <span class="lyricist">（text: {item.data.lyricist}）</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</div>
+
+<style>{`
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .composer-group {
+    padding: 0.25rem;
+    margin-top: 0rem;
+    margin-bottom: 0rem;
+    background-color: var(--card);
+  }
+
+  .composer-name {
+    font-size: var(--font-size-m);
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .song-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0rem;
+  }
+
+  .song-item {
+    font-size: var(--font-size-m);
+    color: var(--text-primary);
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .song-item::before {
+    content: '・';
+    position: absolute;
+    left: 0;
+  }
+
+  .song-title {
+    font-weight: var(--font-weight-light);
+  }
+
+  .lyricist {
+    font-size: var(--font-size-s);
+    color: var(--text-tertiary);
+    margin-left: 0.5rem;
+  }
+`}</style>
