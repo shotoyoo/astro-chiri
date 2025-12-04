@@ -16,6 +16,53 @@ const imageUrl = ogImage ? new URL(ogImage, Astro.url) : new URL(defaultOgImage,
 <!-- Global Metadata -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+<!-- Critical theme initialization to prevent FOUC -->
+<script is:inline>
+  ;(function() {
+    function getSystemTheme() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+    
+    function getStoredTheme() {
+      try {
+        return localStorage.getItem('chiri-theme')
+      } catch {
+        return null
+      }
+    }
+    
+    const theme = getStoredTheme() || getSystemTheme()
+    document.documentElement.classList.add(theme)
+  })()
+</script>
+
+<style is:inline>
+  :root {
+    --bg: #ffffff;
+    --text-primary: #1a1a1a;
+  }
+
+  html.dark {
+    --bg: #1c1c1c;
+    --text-primary: #e5e5e5;
+  }
+
+  html {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--bg);
+  }
+</style>
+
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <link rel="stylesheet" href="/styles/global.css" />

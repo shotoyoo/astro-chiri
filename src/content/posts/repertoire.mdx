@@ -4,20 +4,7 @@ description: '東京大学音楽部合唱団コールアカデミーの演奏楽
 pubDate: 2025-12-03
 ---
 
-import { getCollection } from 'astro:content'
-
-export const history = await getCollection('history')
-
-export const groupedByComposer = history.reduce((acc, item) => {
-  const composer = item.data.composer
-  if (!acc[composer]) {
-    acc[composer] = []
-  }
-  acc[composer].push(item)
-  return acc
-}, {})
-
-export const sortedComposers = Object.keys(groupedByComposer).sort((a, b) => a.localeCompare(b))
+import { groupedByComposer, sortedComposers } from '@/utils/repertoire'
 
 <div class="history-list">
   {sortedComposers.map((composer) => (
@@ -26,8 +13,8 @@ export const sortedComposers = Object.keys(groupedByComposer).sort((a, b) => a.l
       <ul class="song-list">
         {groupedByComposer[composer].map((item) => (
           <li class="song-item">
-            <span class="song-title">{item.data.title}</span>
-            <span class="lyricist">（text: {item.data.lyricist}）</span>
+            <span class="song-title">{item.title}</span>
+            <span class="lyricist">（text: {item.lyricist}）</span>
           </li>
         ))}
       </ul>

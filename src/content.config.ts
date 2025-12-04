@@ -36,15 +36,4 @@ const audio = defineCollection({
   })
 })
 
-const history = defineCollection({
-  // Load all Markdown files in `src/content/history/` directory.
-  loader: glob({ base: './src/content/history', pattern: '**/*.md' }),
-  // Type-check frontmatter using a schema
-  schema: z.object({
-    title: z.string(),
-    composer: z.string(),
-    lyricist: z.string()
-  })
-})
-
-export const collections = { posts, about, audio, history }
+export const collections = { posts, about, audio }

@@ -5,21 +5,48 @@
 <style is:inline>
   :root {
     --bg: #ffffff;
+    --text-primary: #1a1a1a;
   }
 
   html.dark {
     --bg: #1c1c1c;
+    --text-primary: #e5e5e5;
   }
 
   html {
     background-color: var(--bg);
+    color: var(--text-primary);
     color-scheme: light;
   }
 
   html.dark {
     color-scheme: dark;
   }
+
+  body {
+    background-color: var(--bg);
+  }
 </style>
+
+<script is:inline>
+  // Apply theme IMMEDIATELY before anything else loads
+  ;(function() {
+    function getSystemTheme() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+    
+    function getStoredTheme() {
+      try {
+        return localStorage.getItem('chiri-theme')
+      } catch {
+        return null
+      }
+    }
+    
+    const theme = getStoredTheme() || getSystemTheme()
+    document.documentElement.classList.add(theme)
+  })()
+</script>
 
 <script is:inline>
   // Global Theme Manager
