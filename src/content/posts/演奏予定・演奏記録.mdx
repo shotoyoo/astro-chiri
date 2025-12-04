@@ -1,0 +1,43 @@
+---
+title: 演奏予定・演奏記録
+pubDate: '2025-12-02'
+---
+
+import { groupedByYear, sortedYears, formatSongs } from '@/utils/concerts'
+
+# 演奏履歴
+
+{sortedYears.map((year) => (
+  <div key={year}>
+    <h2>{year}</h2>
+    {groupedByYear[year].map((concert) => {
+      const songs = formatSongs(concert.songs)
+      return (
+        <div key={concert.ID} style="margin-bottom: 2rem;">
+          <h3>
+            {concert.month}/{concert.date}{' '}
+            {concert.url ? (
+              <a href={concert.url} target="_blank" rel="noopener noreferrer">
+                {concert.name}
+              </a>
+            ) : (
+              concert.name
+            )}
+            {' '}<br />@{concert.venue}
+          </h3>
+          {songs.length > 0 && (
+            <ul>
+              {songs.map((song, idx) => (
+                <li key={idx}><em>{song}</em></li>
+              ))}
+            </ul>
+          )}
+          {songs.length === 0 && <ul><li>(曲目未公開)</li></ul>}
+        </div>
+      )
+    })}
+    <hr />
+  </div>
+))}
+
+
