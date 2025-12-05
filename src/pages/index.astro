@@ -14,7 +14,7 @@ const posts = await getSortedFilteredPosts()
 <IndexLayout title={themeConfig.site.title} description={themeConfig.site.description}>
   <About />
   <main>
-    <h2 class="mb-2">🎵 聴くもの (リロードするたびに変わるかもしれません)</h2>
+    <h2 class="mb-2">🎵 聴くもの (リロードするたびに変わるかもしれません)<br>※スマホは2回タップしないと再生できないかも</h2>
     <RandomAudio directory="recently" description="最近の音" />
     <RandomAudio directory="pickup" description="ピックアップ過去音源" />
     <h2 class="mb-4">📖 読むもの</h2>
