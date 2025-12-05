@@ -4,9 +4,9 @@ export const themeConfig: ThemeConfig = {
   // SITE INFO ///////////////////////////////////////////////////////////////////////////////////////////
   site: {
     website: 'https://yamanami-choir-club.netlify.app/', // Site domain
-    title: 'やまなみコーラスクラブのHP(工事中)', // Site title
+    title: 'やまなみコーラスクラブのHP', // Site title
     author: 'yamanami choir club', // Author name
-    description: '東京を中心に活動する合唱団「やまなみコーラスクラブ」の公式サイト(永遠に工事中)です。', // Site description
+    description: '東京を中心に活動する混声合唱団「やまなみコーラスクラブ」の公式サイトです。', // Site description
     language: 'ja' // Default language
   },
 

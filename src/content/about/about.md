@@ -9,4 +9,4 @@ You can leave this empty if you don’t want to show any content.
 
 
 やまなみコーラスクラブのHPです  
-少しずつコンテンツを増やしていくよ
+少しずつコンテンツを増やしていきます
