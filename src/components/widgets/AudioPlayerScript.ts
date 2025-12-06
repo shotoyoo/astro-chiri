@@ -179,7 +179,7 @@ export function initAudioPlayer() {
   // Card button click handlers
   playButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      if (!(btn instanceof HTMLElement)) return;
+      if (!(btn instanceof HTMLInputElement)) return;
 
       const rawUrl = btn.dataset.audioUrl;
       const youtubeId = btn.dataset.youtubeId;
@@ -289,11 +289,8 @@ export function initAudioPlayer() {
         playToggle.checked = true;
         disableOtherButtons(btn.id);
         audio.play().catch(() => {
-          // 再生失敗時はアイコンを元に戻す
-          const iconSpan = btn.querySelector('.play-pause-icon');
-          if (iconSpan) {
-            iconSpan.innerHTML = `<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-5 w-5\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><polygon points=\"5 3 19 12 5 21 5 3\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></polygon></svg>`;
-          }
+          // Playback failed - reset button state
+          btn.checked = false;
         });
       }
     });
@@ -301,7 +298,7 @@ export function initAudioPlayer() {
 
   function disableOtherButtons(activeId: string | null) {
     playButtons.forEach((btn) => {
-      if (!(btn instanceof HTMLElement)) return;
+      if (!(btn instanceof HTMLInputElement)) return;
 
       const btnUrl = btn.dataset.audioUrl;
       const btnYoutubeId = btn.dataset.youtubeId;
@@ -321,17 +318,13 @@ export function initAudioPlayer() {
         ? (youtubePlayer && youtubePlayer.getPlayerState() === window.YT.PlayerState.PLAYING)
         : !audio.paused;
 
-      // アイコン切り替え
-      const iconSpan = btn.querySelector('.play-pause-icon');
-      if (iconSpan) {
-        iconSpan.innerHTML = isPlaying && isSameMedia && (isActive || activeId === null)
-          ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="6" y="4" width="4" height="16" stroke-width="2"></rect><rect x="14" y="4" width="4" height="16" stroke-width="2"></rect></svg>`
-          : `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polygon></svg>`;
-      }
+      // Update checkbox state (DaisyUI swap will handle icon display)
+      const shouldBeChecked = isPlaying && isSameMedia && (isActive || activeId === null);
+      btn.checked = shouldBeChecked;
 
       const card = btn.closest(".audio-card");
       if (card) {
-        (card as HTMLElement).dataset.active = isPlaying && isSameMedia && (isActive || activeId === null) ? "true" : "false";
+        (card as HTMLElement).dataset.active = shouldBeChecked ? "true" : "false";
       }
     });
   }
