@@ -178,8 +178,14 @@ export function initAudioPlayer() {
 
   // Card button click handlers
   playButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("change", () => {
       if (!(btn instanceof HTMLInputElement)) return;
+
+      // Store the checkbox state that triggered this event
+      const wasChecked = btn.checked;
+      
+      // Immediately revert to prevent UI flicker
+      btn.checked = !wasChecked;
 
       const rawUrl = btn.dataset.audioUrl;
       const youtubeId = btn.dataset.youtubeId;
@@ -224,8 +230,10 @@ export function initAudioPlayer() {
           console.log('Toggling play/pause, current state:', state);
           if (state === window.YT.PlayerState.PLAYING) {
             youtubePlayer.pauseVideo();
+            btn.checked = false;
           } else {
             youtubePlayer.playVideo();
+            btn.checked = true;
           }
           return;
         }
@@ -272,8 +280,10 @@ export function initAudioPlayer() {
         if (isSameAudio) {
           if (audio.paused) {
             audio.play();
+            btn.checked = true;
           } else {
             audio.pause();
+            btn.checked = false;
           }
           return;
         }
