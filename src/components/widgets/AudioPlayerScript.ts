@@ -178,56 +178,41 @@ export function initAudioPlayer() {
 
   // Card button click handlers
   playButtons.forEach((btn) => {
-    btn.addEventListener("change", () => {
+    btn.addEventListener("click", (event) => {
+      event.preventDefault();
       if (!(btn instanceof HTMLInputElement)) return;
 
-      // Store the checkbox state that triggered this event
-      const wasChecked = btn.checked;
-      
-      // Immediately revert to prevent UI flicker
-      btn.checked = !wasChecked;
+      const rawUrl = btn.dataset.audioUrl ?? "";
+      const youtubeId = btn.dataset.youtubeId ?? "";
+      const hasYouTube = Boolean(youtubeId);
+      const hasAudio = Boolean(rawUrl);
+      if (!hasYouTube && !hasAudio) return;
 
-      const rawUrl = btn.dataset.audioUrl;
-      const youtubeId = btn.dataset.youtubeId;
-      if (!rawUrl && !youtubeId) return;
+      const encodedUrl =
+        hasAudio && !rawUrl.startsWith("http") ? encodeURI(rawUrl) : rawUrl;
+      const normalizedUrl = hasAudio ? normalizeUrl(encodedUrl) : null;
 
-      // Show player
-      musicPlayer?.classList.remove("hidden", "opacity-0");
-      musicPlayer?.classList.add("flex");
-      footer?.classList.add("pb-24");
-      setTimeout(() => musicPlayer?.classList.remove("opacity-0"), 100);
+      const isSameYouTube =
+        currentPlayerType === "youtube" &&
+        youtubeId &&
+        youtubePlayer &&
+        (() => {
+          try {
+            const currentVideoUrl = youtubePlayer.getVideoUrl();
+            return currentVideoUrl ? currentVideoUrl.includes(youtubeId) : false;
+          } catch {
+            return false;
+          }
+        })();
 
-      // Check if YouTube or audio
-  if (youtubeId) {
-        // Check if YouTube player is ready
-        if (!youtubePlayerReady) {
-          console.log('YouTube player not ready yet, waiting...');
-          // Wait for player to be ready and try again
-          const waitForPlayer = window.setInterval(() => {
-            if (youtubePlayerReady) {
-              clearInterval(waitForPlayer);
-              btn.click(); // Retry the click
-            }
-          }, 100);
-          return;
-        }
+      const isSameAudio =
+        currentPlayerType === "audio" &&
+        normalizedUrl &&
+        normalizeUrl(audio.src) === normalizedUrl;
 
-        // Check if it's the same YouTube video
-        const currentVideoUrl = youtubePlayer.getVideoUrl();
-        const isSameVideo = currentVideoUrl && currentVideoUrl.includes(youtubeId);
-        
-        console.log('YouTube button clicked:', {
-          youtubeId,
-          currentVideoUrl,
-          isSameVideo,
-          currentPlayerType,
-          playerState: youtubePlayer.getPlayerState()
-        });
-
-        if (isSameVideo && currentPlayerType === 'youtube') {
-          // Same video - toggle play/pause
+      if (isSameYouTube || isSameAudio) {
+        if (isSameYouTube && youtubePlayer) {
           const state = youtubePlayer.getPlayerState();
-          console.log('Toggling play/pause, current state:', state);
           if (state === window.YT.PlayerState.PLAYING) {
             youtubePlayer.pauseVideo();
             btn.checked = false;
@@ -235,49 +220,7 @@ export function initAudioPlayer() {
             youtubePlayer.playVideo();
             btn.checked = true;
           }
-          return;
-        }
-
-        // YouTube playback (new video)
-        audio.pause();
-        audio.src = '';
-
-        audioLoading?.classList.remove("hidden");
-        audioControl?.classList.add("hidden");
-
-        // Set player type immediately before loading video
-        currentPlayerType = 'youtube';
-        
-        youtubePlayer.loadVideoById(youtubeId);
-        youtubePlayer.playVideo();
-
-        // Update duration when available
-        const checkDuration = window.setInterval(() => {
-          const duration = youtubePlayer.getDuration();
-          if (duration > 0) {
-            durationDisplay!.textContent = formatTime(duration);
-            seekSlider.max = Math.floor(duration).toString();
-            audioLoading?.classList.add("hidden");
-            audioControl?.classList.remove("hidden");
-            clearInterval(checkDuration);
-          }
-        }, 100);
-
-        playToggle.checked = true;
-        disableOtherButtons(btn.id);
-      } else if (rawUrl) {
-        // Audio playback
-        currentPlayerType = 'audio';
-        stopUpdateInterval();
-        if (youtubePlayer) {
-          youtubePlayer.stopVideo();
-        }
-
-        const encodedUrl = rawUrl.startsWith("http") ? rawUrl : encodeURI(rawUrl);
-        const fullUrl = normalizeUrl(encodedUrl);
-        const isSameAudio = normalizeUrl(audio.src) === fullUrl;
-
-        if (isSameAudio) {
+        } else if (isSameAudio) {
           if (audio.paused) {
             audio.play();
             btn.checked = true;
@@ -285,7 +228,66 @@ export function initAudioPlayer() {
             audio.pause();
             btn.checked = false;
           }
+        }
+        return;
+      }
+
+      // Show player for new media selection
+      musicPlayer?.classList.remove("hidden", "opacity-0");
+      musicPlayer?.classList.add("flex");
+      footer?.classList.add("pb-24");
+      setTimeout(() => musicPlayer?.classList.remove("opacity-0"), 100);
+
+      if (hasYouTube) {
+        if (!youtubePlayerReady) {
+          if (btn.dataset.waitingForYoutube !== "true") {
+            btn.dataset.waitingForYoutube = "true";
+            const waitForPlayer = window.setInterval(() => {
+              if (youtubePlayerReady) {
+                clearInterval(waitForPlayer);
+                delete btn.dataset.waitingForYoutube;
+                btn.click();
+              }
+            }, 100);
+          }
           return;
+        }
+
+        currentPlayerType = "youtube";
+        stopUpdateInterval();
+        audio.pause();
+        audio.src = "";
+
+        audioLoading?.classList.remove("hidden");
+        audioControl?.classList.add("hidden");
+
+        youtubePlayer.loadVideoById(youtubeId);
+        youtubePlayer.playVideo();
+
+        const checkDuration = window.setInterval(() => {
+          try {
+            const duration = youtubePlayer.getDuration();
+            if (duration > 0) {
+              durationDisplay!.textContent = formatTime(duration);
+              seekSlider.max = Math.floor(duration).toString();
+              audioLoading?.classList.add("hidden");
+              audioControl?.classList.remove("hidden");
+              clearInterval(checkDuration);
+            }
+          } catch {
+            clearInterval(checkDuration);
+          }
+        }, 100);
+
+        playToggle.checked = true;
+        btn.checked = true;
+        disableOtherButtons(btn.id);
+        startYouTubeUpdateInterval();
+      } else if (normalizedUrl) {
+        currentPlayerType = "audio";
+        stopUpdateInterval();
+        if (youtubePlayer) {
+          youtubePlayer.stopVideo();
         }
 
         audioLoading?.classList.remove("hidden");
@@ -294,13 +296,16 @@ export function initAudioPlayer() {
         currentTimeDisplay!.textContent = "0:00";
         durationDisplay!.textContent = "0:00";
 
-        audio.src = fullUrl;
+        audio.src = normalizedUrl;
         audio.load();
         playToggle.checked = true;
+        btn.checked = true;
         disableOtherButtons(btn.id);
         audio.play().catch(() => {
-          // Playback failed - reset button state
           btn.checked = false;
+          currentPlayerType = null;
+          audioLoading?.classList.add("hidden");
+          audioControl?.classList.remove("hidden");
         });
       }
     });
@@ -329,7 +334,7 @@ export function initAudioPlayer() {
         : !audio.paused;
 
       // Update checkbox state (DaisyUI swap will handle icon display)
-      const shouldBeChecked = isPlaying && isSameMedia && (isActive || activeId === null);
+      const shouldBeChecked = isActive || (isPlaying && isSameMedia && activeId === null);
       btn.checked = shouldBeChecked;
 
       const card = btn.closest(".audio-card");
