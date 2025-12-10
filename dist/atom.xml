@@ -3,7 +3,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yamanami-choir-club.netlify.app</id>
     <title>やまなみコーラスクラブのHP</title>
-    <updated>2025-12-06T06:16:33.963Z</updated>
+    <updated>2025-12-10T16:29:26.516Z</updated>
     <generator>Astro Chiri Feed Generator</generator>
     <author>
         <name>yamanami choir club</name>
@@ -21,8 +21,8 @@
         <content type="html"><![CDATA[<p>東京で混声合唱をしている「やまなみコーラスクラブ」です。大学合唱を通じて知り合った仲間が集まり発足しました。<br />
 世界中の合唱作品との出会いを楽しみながら、土日を中心に月2-3回程度、都内のスタジオ・公共施設で練習しています。<br />
 曲や詩に親しむことや、歌のための声・呼吸・身体づくりに興味を持って取り組んでいます。</p>
-<p>これまでに取り組んだ曲目の一覧は<a href="../%E3%83%AC%E3%83%91%E3%83%BC%E3%83%88%E3%83%AA%E3%83%BC.md">レパートリーのページ</a>をご覧ください。
-演奏の予定や過去の演奏記録は<a href="../%E6%BC%94%E5%A5%8F%E4%BA%88%E5%AE%9A%E3%83%BB%E6%BC%94%E5%A5%8F%E8%A8%98%E9%8C%B2.md">演奏予定・演奏記録のページ</a>をご覧ください。</p>
+<p>これまでに取り組んだ曲目の一覧は<a href="/repertoire/">レパートリーのページ</a>をご覧ください。
+演奏の予定や過去の演奏記録は<a href="/%E6%BC%94%E5%A5%8F%E4%BA%88%E5%AE%9A%E6%BC%94%E5%A5%8F%E8%A8%98%E9%8C%B2/">演奏予定・演奏記録のページ</a>をご覧ください。</p>
 <p>活動にご興味のある方は随時練習見学を受け付けております！<br />
 (いらっしゃれば)お知り合いの団員にお声掛けいただくか、<a href="https://x.com/yamanami_chorus">X の DM</a> からご連絡ください。</p>
 ]]></content>

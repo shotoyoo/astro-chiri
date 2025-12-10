@@ -12,11 +12,32 @@ let youtubePlayerReady = false;
 let currentPlayerType: 'audio' | 'youtube' | null = null;
 let updateInterval: number | null = null;
 
+let audioEl: HTMLAudioElement | null = null;
+let playToggleEl: HTMLInputElement | null = null;
+let muteToggleEl: HTMLInputElement | null = null;
+let seekSliderEl: HTMLInputElement | null = null;
+let currentTimeDisplayEl: HTMLElement | null = null;
+let durationDisplayEl: HTMLElement | null = null;
+let audioLoadingEl: HTMLElement | null = null;
+let audioControlEl: HTMLElement | null = null;
+let musicPlayerEl: HTMLElement | null = null;
+let footerEl: HTMLElement | null = null;
+
+let keyboardHandlerAttached = false;
+
+const DATASET_AUDIO = 'playerAudio';
+const DATASET_PLAY_TOGGLE = 'playerPlayToggle';
+const DATASET_MUTE_TOGGLE = 'playerMuteToggle';
+const DATASET_SEEK_SLIDER = 'playerSeekSlider';
+const DATASET_CARD_BOUND = 'playerBound';
+const DATASET_LABEL_BOUND = 'playerLabelBound';
+const DATASET_WAITING = 'waitingForYoutube';
+
 const formatTime = (secs: number) => {
   const minutes = Math.floor(secs / 60);
   const seconds = Math.floor(secs % 60)
     .toString()
-    .padStart(2, "0");
+    .padStart(2, '0');
   return `${minutes}:${seconds}`;
 };
 
@@ -28,354 +49,499 @@ function normalizeUrl(url: string) {
   }
 }
 
-export function initAudioPlayer() {
-  const audio = document.getElementById("audio-element") as HTMLAudioElement;
-  const playToggle = document.getElementById("play-icon") as HTMLInputElement;
-  const muteToggle = document.getElementById("mute-icon") as HTMLInputElement;
-  const seekSlider = document.getElementById("seek-slider") as HTMLInputElement;
-  const currentTimeDisplay = document.getElementById("current-time");
-  const durationDisplay = document.getElementById("duration");
-  const audioLoading = document.getElementById("audio-loading");
-  const audioControl = document.getElementById("audio-control");
-  const musicPlayer = document.getElementById("audio-player-container");
-  const footer = document.querySelector(".footer > div");
-  const playButtons = document.querySelectorAll(".card-pay-buttons");
+function getPlayButtons(): HTMLInputElement[] {
+  return Array.from(
+    document.querySelectorAll<HTMLInputElement>('input.card-pay-buttons'),
+  );
+}
 
-  // Initialize YouTube Player when API is ready
-  function initYouTubePlayer() {
-    if (typeof window.YT === 'undefined' || !window.YT.Player) {
-      setTimeout(initYouTubePlayer, 100);
+function showPlayerShell() {
+  musicPlayerEl?.classList.remove('hidden', 'opacity-0');
+  musicPlayerEl?.classList.add('flex');
+  footerEl?.classList.add('pb-24');
+  window.setTimeout(() => musicPlayerEl?.classList.remove('opacity-0'), 100);
+}
+
+function startYouTubeUpdateInterval() {
+  stopUpdateInterval();
+  updateInterval = window.setInterval(() => {
+    if (
+      youtubePlayer &&
+      currentPlayerType === 'youtube' &&
+      seekSliderEl &&
+      currentTimeDisplayEl
+    ) {
+      const currentTime = youtubePlayer.getCurrentTime();
+      const duration = youtubePlayer.getDuration();
+      if (typeof currentTime === 'number' && typeof duration === 'number') {
+        seekSliderEl.value = Math.floor(currentTime).toString();
+        currentTimeDisplayEl.textContent = formatTime(currentTime);
+        seekSliderEl.max = Math.floor(duration).toString();
+      }
+    }
+  }, 100);
+}
+
+function stopUpdateInterval() {
+  if (updateInterval) {
+    clearInterval(updateInterval);
+    updateInterval = null;
+  }
+}
+
+function disableOtherButtons(activeId: string | null) {
+  const buttons = getPlayButtons();
+
+  buttons.forEach((btn) => {
+    if (!(btn instanceof HTMLInputElement)) return;
+
+    const btnUrl = btn.dataset.audioUrl;
+    const btnYoutubeId = btn.dataset.youtubeId;
+    if (!btnUrl && !btnYoutubeId) return;
+
+    let isSameMedia = false;
+    if (currentPlayerType === 'youtube' && btnYoutubeId && youtubePlayer) {
+      try {
+        const currentVideoUrl = youtubePlayer.getVideoUrl();
+        isSameMedia = currentVideoUrl
+          ? currentVideoUrl.includes(btnYoutubeId)
+          : false;
+      } catch {
+        isSameMedia = false;
+      }
+    } else if (currentPlayerType === 'audio' && btnUrl && audioEl) {
+      const fullUrl = normalizeUrl(btnUrl);
+      isSameMedia = normalizeUrl(audioEl.src) === fullUrl;
+    }
+
+    const isActive = btn.id === activeId;
+    const isPlaying =
+      currentPlayerType === 'youtube'
+        ? Boolean(
+            youtubePlayer &&
+              youtubePlayer.getPlayerState() === window.YT.PlayerState.PLAYING,
+          )
+        : Boolean(audioEl && !audioEl.paused);
+
+    const shouldBeChecked =
+      isActive || (isPlaying && isSameMedia && activeId === null);
+    btn.checked = shouldBeChecked;
+
+    const card = btn.closest('.audio-card');
+    if (card instanceof HTMLElement) {
+      card.dataset.active = shouldBeChecked ? 'true' : 'false';
+    }
+  });
+}
+
+function handleCardButton(btn: HTMLInputElement) {
+  if (!audioEl || !playToggleEl) {
+    initAudioPlayer();
+  }
+
+  if (!audioEl || !playToggleEl) {
+    return;
+  }
+
+  const rawUrl = btn.dataset.audioUrl ?? '';
+  const youtubeId = btn.dataset.youtubeId ?? '';
+  const hasYouTube = Boolean(youtubeId);
+  const hasAudio = Boolean(rawUrl);
+  if (!hasYouTube && !hasAudio) return;
+
+  const encodedUrl =
+    hasAudio && !rawUrl.startsWith('http') ? encodeURI(rawUrl) : rawUrl;
+  const normalizedUrl = hasAudio ? normalizeUrl(encodedUrl) : null;
+
+  const isSameYouTube =
+    currentPlayerType === 'youtube' &&
+    youtubeId &&
+    youtubePlayer &&
+    (() => {
+      try {
+        const currentVideoUrl = youtubePlayer.getVideoUrl();
+        return currentVideoUrl ? currentVideoUrl.includes(youtubeId) : false;
+      } catch {
+        return false;
+      }
+    })();
+
+  const isSameAudio =
+    currentPlayerType === 'audio' &&
+    normalizedUrl &&
+    audioEl &&
+    normalizeUrl(audioEl.src) === normalizedUrl;
+
+  if (isSameYouTube || isSameAudio) {
+    if (isSameYouTube && youtubePlayer) {
+      const state = youtubePlayer.getPlayerState();
+      if (state === window.YT.PlayerState.PLAYING) {
+        youtubePlayer.pauseVideo();
+        btn.checked = false;
+      } else {
+        youtubePlayer.playVideo();
+        btn.checked = true;
+      }
+    } else if (isSameAudio && audioEl) {
+      if (audioEl.paused) {
+        audioEl.play();
+        btn.checked = true;
+      } else {
+        audioEl.pause();
+        btn.checked = false;
+      }
+    }
+    return;
+  }
+
+  showPlayerShell();
+
+  if (hasYouTube) {
+    if (!youtubePlayerReady) {
+      if (btn.dataset[DATASET_WAITING] !== 'true') {
+        btn.dataset[DATASET_WAITING] = 'true';
+        const waitForPlayer = window.setInterval(() => {
+          if (youtubePlayerReady) {
+            clearInterval(waitForPlayer);
+            delete btn.dataset[DATASET_WAITING];
+            btn.click();
+          }
+        }, 100);
+      }
       return;
     }
 
-    youtubePlayer = new window.YT.Player('youtube-player', {
-      height: '0',
-      width: '0',
-      events: {
-        onReady: onPlayerReady,
-        onStateChange: onPlayerStateChange,
-      }
-    });
-  }
-
-  function onPlayerReady() {
-    console.log('YouTube player ready');
-    youtubePlayerReady = true;
-  }
-
-  function onPlayerStateChange(event: any) {
-    if (event.data === window.YT.PlayerState.PLAYING) {
-      playToggle.checked = true;
-      startYouTubeUpdateInterval();
-      disableOtherButtons(null);
-    } else if (event.data === window.YT.PlayerState.PAUSED || event.data === window.YT.PlayerState.ENDED) {
-      playToggle.checked = false;
-      stopUpdateInterval();
-      disableOtherButtons(null);
-    }
-  }
-
-  function startYouTubeUpdateInterval() {
+    currentPlayerType = 'youtube';
     stopUpdateInterval();
-    updateInterval = window.setInterval(() => {
-      if (youtubePlayer && currentPlayerType === 'youtube') {
-        const currentTime = youtubePlayer.getCurrentTime();
+    audioEl.pause();
+    audioEl.src = '';
+
+    audioLoadingEl?.classList.remove('hidden');
+    audioControlEl?.classList.add('hidden');
+
+    if (!youtubePlayer) {
+      return;
+    }
+
+    youtubePlayer.loadVideoById(youtubeId);
+    youtubePlayer.playVideo();
+
+    const checkDuration = window.setInterval(() => {
+      if (!seekSliderEl || !durationDisplayEl) {
+        clearInterval(checkDuration);
+        return;
+      }
+
+      try {
         const duration = youtubePlayer.getDuration();
-        if (currentTime && duration) {
-          seekSlider.value = Math.floor(currentTime).toString();
-          currentTimeDisplay!.textContent = formatTime(currentTime);
-          seekSlider.max = Math.floor(duration).toString();
+        if (duration > 0) {
+          durationDisplayEl.textContent = formatTime(duration);
+          seekSliderEl.max = Math.floor(duration).toString();
+          audioLoadingEl?.classList.add('hidden');
+          audioControlEl?.classList.remove('hidden');
+          clearInterval(checkDuration);
         }
+      } catch {
+        clearInterval(checkDuration);
       }
     }, 100);
-  }
 
-  function stopUpdateInterval() {
-    if (updateInterval) {
-      clearInterval(updateInterval);
-      updateInterval = null;
+    playToggleEl.checked = true;
+    btn.checked = true;
+    disableOtherButtons(btn.id);
+    startYouTubeUpdateInterval();
+  } else if (normalizedUrl) {
+    currentPlayerType = 'audio';
+    stopUpdateInterval();
+    if (youtubePlayer) {
+      youtubePlayer.stopVideo();
+    }
+
+    audioLoadingEl?.classList.remove('hidden');
+    audioControlEl?.classList.add('hidden');
+
+    if (currentTimeDisplayEl) currentTimeDisplayEl.textContent = '0:00';
+    if (durationDisplayEl) durationDisplayEl.textContent = '0:00';
+
+    audioEl.src = normalizedUrl;
+    audioEl.load();
+    playToggleEl.checked = true;
+    btn.checked = true;
+    disableOtherButtons(btn.id);
+    audioEl.play().catch(() => {
+      btn.checked = false;
+      currentPlayerType = null;
+      audioLoadingEl?.classList.add('hidden');
+      audioControlEl?.classList.remove('hidden');
+    });
+  }
+}
+
+function ensureKeyboardHandler() {
+  if (keyboardHandlerAttached) return;
+
+  document.addEventListener('keydown', onDocumentKeyDown);
+  keyboardHandlerAttached = true;
+}
+
+function bindPlayButtons() {
+  const buttons = getPlayButtons();
+
+  buttons.forEach((btn) => {
+    if (!(btn instanceof HTMLInputElement)) return;
+    if (btn.dataset[DATASET_CARD_BOUND] !== 'true') {
+      btn.dataset[DATASET_CARD_BOUND] = 'true';
+    }
+
+    const label = btn.closest('label');
+    if (!label || label.dataset[DATASET_LABEL_BOUND] === 'true') return;
+
+    label.addEventListener('click', (event) => {
+      event.preventDefault();
+      handleCardButton(btn);
+    });
+    label.dataset[DATASET_LABEL_BOUND] = 'true';
+  });
+}
+
+function onAudioLoadedMetadata() {
+  if (!audioEl || !seekSliderEl || !durationDisplayEl) return;
+  durationDisplayEl.textContent = formatTime(audioEl.duration);
+  seekSliderEl.max = Math.floor(audioEl.duration).toString();
+  audioLoadingEl?.classList.add('hidden');
+  audioControlEl?.classList.remove('hidden');
+}
+
+function onAudioError() {
+  audioLoadingEl?.classList.add('hidden');
+  audioControlEl?.classList.add('hidden');
+}
+
+function onPlayToggleChange() {
+  if (!playToggleEl) return;
+
+  if (currentPlayerType === 'youtube' && youtubePlayer) {
+    const state = youtubePlayer.getPlayerState();
+    if (state === window.YT.PlayerState.PLAYING) {
+      youtubePlayer.pauseVideo();
+    } else {
+      youtubePlayer.playVideo();
+    }
+  } else if (currentPlayerType === 'audio' && audioEl) {
+    if (audioEl.paused) {
+      audioEl.play();
+    } else {
+      audioEl.pause();
     }
   }
+}
 
-  // Initialize YouTube if API is available
+function onAudioPlay() {
+  if (playToggleEl) {
+    playToggleEl.checked = true;
+  }
+  disableOtherButtons(null);
+}
+
+function onAudioPause() {
+  if (playToggleEl) {
+    playToggleEl.checked = false;
+  }
+  disableOtherButtons(null);
+}
+
+function onMuteToggleChange() {
+  if (!muteToggleEl) return;
+
+  if (currentPlayerType === 'youtube' && youtubePlayer) {
+    if (muteToggleEl.checked) {
+      youtubePlayer.mute();
+    } else {
+      youtubePlayer.unMute();
+    }
+  } else if (audioEl) {
+    audioEl.muted = muteToggleEl.checked;
+  }
+}
+
+function onSeekSliderInput() {
+  if (!seekSliderEl || !currentTimeDisplayEl) return;
+  currentTimeDisplayEl.textContent = formatTime(parseInt(seekSliderEl.value, 10));
+}
+
+function onSeekSliderChange() {
+  if (!seekSliderEl) return;
+
+  const newTime = parseInt(seekSliderEl.value, 10);
+  if (Number.isNaN(newTime)) return;
+
+  if (currentPlayerType === 'youtube' && youtubePlayer) {
+    youtubePlayer.seekTo(newTime, true);
+  } else if (audioEl) {
+    audioEl.currentTime = newTime;
+  }
+}
+
+function onAudioTimeUpdate() {
+  if (currentPlayerType !== 'audio' || !audioEl || !seekSliderEl || !currentTimeDisplayEl) return;
+  seekSliderEl.value = Math.floor(audioEl.currentTime).toString();
+  currentTimeDisplayEl.textContent = formatTime(audioEl.currentTime);
+}
+
+function onDocumentKeyDown(event: KeyboardEvent) {
+  const target = document.activeElement;
+  if (target && ['INPUT', 'TEXTAREA'].includes(target.tagName)) return;
+  if (event.altKey) return;
+
+  switch (event.code) {
+    case 'Space':
+      event.preventDefault();
+      playToggleEl?.click();
+      break;
+    case 'ArrowRight':
+      event.preventDefault();
+      if (currentPlayerType === 'youtube' && youtubePlayer) {
+        const currentTime = youtubePlayer.getCurrentTime();
+        const duration = youtubePlayer.getDuration();
+        youtubePlayer.seekTo(Math.min(duration, currentTime + 5), true);
+      } else if (audioEl) {
+        audioEl.currentTime = Math.min(audioEl.duration, audioEl.currentTime + 5);
+      }
+      break;
+    case 'ArrowLeft':
+      event.preventDefault();
+      if (currentPlayerType === 'youtube' && youtubePlayer) {
+        const currentTime = youtubePlayer.getCurrentTime();
+        youtubePlayer.seekTo(Math.max(0, currentTime - 5), true);
+      } else if (audioEl) {
+        audioEl.currentTime = Math.max(0, audioEl.currentTime - 5);
+      }
+      break;
+  }
+}
+
+function initYouTubePlayer() {
+  const container = document.getElementById('youtube-player');
+
+  if (!container) {
+    youtubePlayerReady = false;
+    if (youtubePlayer) {
+      try {
+        youtubePlayer.destroy();
+      } catch {
+        // ignore
+      }
+      youtubePlayer = null;
+    }
+    return;
+  }
+
+  if (typeof window.YT === 'undefined' || !window.YT.Player) {
+    window.setTimeout(initYouTubePlayer, 100);
+    return;
+  }
+
+  if (youtubePlayer) {
+    try {
+      const iframe = youtubePlayer.getIframe?.();
+      if (iframe && iframe.isConnected && iframe.parentElement === container) {
+        return;
+      }
+      youtubePlayer.destroy();
+    } catch {
+      // ignore when destroying unavailable player
+    }
+    youtubePlayer = null;
+    youtubePlayerReady = false;
+  }
+
+  youtubePlayer = new window.YT.Player(container, {
+    height: '0',
+    width: '0',
+    events: {
+      onReady: () => {
+        youtubePlayerReady = true;
+      },
+      onStateChange: (event: any) => {
+        if (event.data === window.YT.PlayerState.PLAYING) {
+          if (playToggleEl) {
+            playToggleEl.checked = true;
+          }
+          startYouTubeUpdateInterval();
+          disableOtherButtons(null);
+        } else if (
+          event.data === window.YT.PlayerState.PAUSED ||
+          event.data === window.YT.PlayerState.ENDED
+        ) {
+          if (playToggleEl) {
+            playToggleEl.checked = false;
+          }
+          stopUpdateInterval();
+          disableOtherButtons(null);
+        }
+      },
+    },
+  });
+}
+
+function bindElementListeners() {
+  if (audioEl && !audioEl.dataset[DATASET_AUDIO]) {
+    audioEl.addEventListener('loadedmetadata', onAudioLoadedMetadata);
+    audioEl.addEventListener('error', onAudioError);
+    audioEl.addEventListener('play', onAudioPlay);
+    audioEl.addEventListener('pause', onAudioPause);
+    audioEl.addEventListener('timeupdate', onAudioTimeUpdate);
+    audioEl.dataset[DATASET_AUDIO] = 'true';
+  }
+
+  if (playToggleEl && !playToggleEl.dataset[DATASET_PLAY_TOGGLE]) {
+    playToggleEl.addEventListener('change', onPlayToggleChange);
+    playToggleEl.dataset[DATASET_PLAY_TOGGLE] = 'true';
+  }
+
+  if (muteToggleEl && !muteToggleEl.dataset[DATASET_MUTE_TOGGLE]) {
+    muteToggleEl.addEventListener('change', onMuteToggleChange);
+    muteToggleEl.dataset[DATASET_MUTE_TOGGLE] = 'true';
+  }
+
+  if (seekSliderEl && !seekSliderEl.dataset[DATASET_SEEK_SLIDER]) {
+    seekSliderEl.addEventListener('input', onSeekSliderInput);
+    seekSliderEl.addEventListener('change', onSeekSliderChange);
+    seekSliderEl.dataset[DATASET_SEEK_SLIDER] = 'true';
+  }
+
+  bindPlayButtons();
+  ensureKeyboardHandler();
+}
+
+export function initAudioPlayer() {
+  audioEl = document.getElementById('audio-element') as HTMLAudioElement | null;
+  playToggleEl = document.getElementById('play-icon') as HTMLInputElement | null;
+  muteToggleEl = document.getElementById('mute-icon') as HTMLInputElement | null;
+  seekSliderEl = document.getElementById('seek-slider') as HTMLInputElement | null;
+  currentTimeDisplayEl = document.getElementById('current-time');
+  durationDisplayEl = document.getElementById('duration');
+  audioLoadingEl = document.getElementById('audio-loading');
+  audioControlEl = document.getElementById('audio-control');
+  musicPlayerEl = document.getElementById('audio-player-container');
+  footerEl = document.querySelector('.footer > div');
+
+  if (
+    !audioEl ||
+    !playToggleEl ||
+    !muteToggleEl ||
+    !seekSliderEl ||
+    !currentTimeDisplayEl ||
+    !durationDisplayEl
+  ) {
+    return;
+  }
+
+  bindElementListeners();
+
   if (typeof window.YT !== 'undefined') {
     initYouTubePlayer();
   } else {
     window.onYouTubeIframeAPIReady = initYouTubePlayer;
   }
-
-  // Audio element event listeners
-  audio.addEventListener("loadedmetadata", () => {
-    durationDisplay!.textContent = formatTime(audio.duration);
-    seekSlider.max = Math.floor(audio.duration).toString();
-    audioLoading?.classList.add("hidden");
-    audioControl?.classList.remove("hidden");
-  });
-
-  audio.addEventListener("error", () => {
-    audioLoading?.classList.add("hidden");
-    audioControl?.classList.add("hidden");
-  });
-
-  // Play/Pause toggle
-  playToggle?.addEventListener("change", () => {
-    if (currentPlayerType === 'youtube' && youtubePlayer) {
-      const state = youtubePlayer.getPlayerState();
-      if (state === window.YT.PlayerState.PLAYING) {
-        youtubePlayer.pauseVideo();
-      } else {
-        youtubePlayer.playVideo();
-      }
-    } else if (currentPlayerType === 'audio') {
-      if (audio.paused) {
-        audio.play();
-      } else {
-        audio.pause();
-      }
-    }
-  });
-
-  audio.addEventListener("play", () => {
-    playToggle.checked = true;
-    disableOtherButtons(null);
-  });
-
-  audio.addEventListener("pause", () => {
-    playToggle.checked = false;
-    disableOtherButtons(null);
-  });
-
-  muteToggle?.addEventListener("change", () => {
-    if (currentPlayerType === 'youtube' && youtubePlayer) {
-      if (muteToggle.checked) {
-        youtubePlayer.mute();
-      } else {
-        youtubePlayer.unMute();
-      }
-    } else {
-      audio.muted = muteToggle.checked;
-    }
-  });
-
-  seekSlider?.addEventListener("input", () => {
-    currentTimeDisplay!.textContent = formatTime(parseInt(seekSlider.value));
-  });
-
-  seekSlider?.addEventListener("change", () => {
-    if (currentPlayerType === 'youtube' && youtubePlayer) {
-      youtubePlayer.seekTo(parseInt(seekSlider.value), true);
-    } else {
-      audio.currentTime = parseInt(seekSlider.value);
-    }
-  });
-
-  audio.addEventListener("timeupdate", () => {
-    if (currentPlayerType === 'audio') {
-      seekSlider.value = Math.floor(audio.currentTime).toString();
-      currentTimeDisplay!.textContent = formatTime(audio.currentTime);
-    }
-  });
-
-  // Card button click handlers
-  playButtons.forEach((btn) => {
-    btn.addEventListener("click", (event) => {
-      event.preventDefault();
-      if (!(btn instanceof HTMLInputElement)) return;
-
-      const rawUrl = btn.dataset.audioUrl ?? "";
-      const youtubeId = btn.dataset.youtubeId ?? "";
-      const hasYouTube = Boolean(youtubeId);
-      const hasAudio = Boolean(rawUrl);
-      if (!hasYouTube && !hasAudio) return;
-
-      const encodedUrl =
-        hasAudio && !rawUrl.startsWith("http") ? encodeURI(rawUrl) : rawUrl;
-      const normalizedUrl = hasAudio ? normalizeUrl(encodedUrl) : null;
-
-      const isSameYouTube =
-        currentPlayerType === "youtube" &&
-        youtubeId &&
-        youtubePlayer &&
-        (() => {
-          try {
-            const currentVideoUrl = youtubePlayer.getVideoUrl();
-            return currentVideoUrl ? currentVideoUrl.includes(youtubeId) : false;
-          } catch {
-            return false;
-          }
-        })();
-
-      const isSameAudio =
-        currentPlayerType === "audio" &&
-        normalizedUrl &&
-        normalizeUrl(audio.src) === normalizedUrl;
-
-      if (isSameYouTube || isSameAudio) {
-        if (isSameYouTube && youtubePlayer) {
-          const state = youtubePlayer.getPlayerState();
-          if (state === window.YT.PlayerState.PLAYING) {
-            youtubePlayer.pauseVideo();
-            btn.checked = false;
-          } else {
-            youtubePlayer.playVideo();
-            btn.checked = true;
-          }
-        } else if (isSameAudio) {
-          if (audio.paused) {
-            audio.play();
-            btn.checked = true;
-          } else {
-            audio.pause();
-            btn.checked = false;
-          }
-        }
-        return;
-      }
-
-      // Show player for new media selection
-      musicPlayer?.classList.remove("hidden", "opacity-0");
-      musicPlayer?.classList.add("flex");
-      footer?.classList.add("pb-24");
-      setTimeout(() => musicPlayer?.classList.remove("opacity-0"), 100);
-
-      if (hasYouTube) {
-        if (!youtubePlayerReady) {
-          if (btn.dataset.waitingForYoutube !== "true") {
-            btn.dataset.waitingForYoutube = "true";
-            const waitForPlayer = window.setInterval(() => {
-              if (youtubePlayerReady) {
-                clearInterval(waitForPlayer);
-                delete btn.dataset.waitingForYoutube;
-                btn.click();
-              }
-            }, 100);
-          }
-          return;
-        }
-
-        currentPlayerType = "youtube";
-        stopUpdateInterval();
-        audio.pause();
-        audio.src = "";
-
-        audioLoading?.classList.remove("hidden");
-        audioControl?.classList.add("hidden");
-
-        youtubePlayer.loadVideoById(youtubeId);
-        youtubePlayer.playVideo();
-
-        const checkDuration = window.setInterval(() => {
-          try {
-            const duration = youtubePlayer.getDuration();
-            if (duration > 0) {
-              durationDisplay!.textContent = formatTime(duration);
-              seekSlider.max = Math.floor(duration).toString();
-              audioLoading?.classList.add("hidden");
-              audioControl?.classList.remove("hidden");
-              clearInterval(checkDuration);
-            }
-          } catch {
-            clearInterval(checkDuration);
-          }
-        }, 100);
-
-        playToggle.checked = true;
-        btn.checked = true;
-        disableOtherButtons(btn.id);
-        startYouTubeUpdateInterval();
-      } else if (normalizedUrl) {
-        currentPlayerType = "audio";
-        stopUpdateInterval();
-        if (youtubePlayer) {
-          youtubePlayer.stopVideo();
-        }
-
-        audioLoading?.classList.remove("hidden");
-        audioControl?.classList.add("hidden");
-
-        currentTimeDisplay!.textContent = "0:00";
-        durationDisplay!.textContent = "0:00";
-
-        audio.src = normalizedUrl;
-        audio.load();
-        playToggle.checked = true;
-        btn.checked = true;
-        disableOtherButtons(btn.id);
-        audio.play().catch(() => {
-          btn.checked = false;
-          currentPlayerType = null;
-          audioLoading?.classList.add("hidden");
-          audioControl?.classList.remove("hidden");
-        });
-      }
-    });
-  });
-
-  function disableOtherButtons(activeId: string | null) {
-    playButtons.forEach((btn) => {
-      if (!(btn instanceof HTMLInputElement)) return;
-
-      const btnUrl = btn.dataset.audioUrl;
-      const btnYoutubeId = btn.dataset.youtubeId;
-      if (!btnUrl && !btnYoutubeId) return;
-
-      let isSameMedia = false;
-      if (currentPlayerType === 'youtube' && btnYoutubeId && youtubePlayer) {
-        const currentVideoUrl = youtubePlayer.getVideoUrl();
-        isSameMedia = currentVideoUrl ? currentVideoUrl.includes(btnYoutubeId) : false;
-      } else if (currentPlayerType === 'audio' && btnUrl) {
-        const fullUrl = normalizeUrl(btnUrl);
-        isSameMedia = normalizeUrl(audio.src) === fullUrl;
-      }
-
-      const isActive = btn.id === activeId;
-      const isPlaying = currentPlayerType === 'youtube' 
-        ? (youtubePlayer && youtubePlayer.getPlayerState() === window.YT.PlayerState.PLAYING)
-        : !audio.paused;
-
-      // Update checkbox state (DaisyUI swap will handle icon display)
-      const shouldBeChecked = isActive || (isPlaying && isSameMedia && activeId === null);
-      btn.checked = shouldBeChecked;
-
-      const card = btn.closest(".audio-card");
-      if (card) {
-        (card as HTMLElement).dataset.active = shouldBeChecked ? "true" : "false";
-      }
-    });
-  }
-
-  // Keyboard shortcuts
-  document.addEventListener("keydown", (event) => {
-    const target = document.activeElement;
-    if (target && ["INPUT", "TEXTAREA"].includes(target.tagName)) return;
-
-    // Alt キーが押されている場合はブラウザのネイティブ機能を優先
-    if (event.altKey) return;
-
-    switch (event.code) {
-      case "Space":
-        event.preventDefault();
-        playToggle?.click();
-        break;
-      case "ArrowRight":
-        event.preventDefault();
-        if (currentPlayerType === 'youtube' && youtubePlayer) {
-          const currentTime = youtubePlayer.getCurrentTime();
-          const duration = youtubePlayer.getDuration();
-          youtubePlayer.seekTo(Math.min(duration, currentTime + 5), true);
-        } else {
-          audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
-        }
-        break;
-      case "ArrowLeft":
-        event.preventDefault();
-        if (currentPlayerType === 'youtube' && youtubePlayer) {
-          const currentTime = youtubePlayer.getCurrentTime();
-          youtubePlayer.seekTo(Math.max(0, currentTime - 5), true);
-        } else {
-          audio.currentTime = Math.max(0, audio.currentTime - 5);
-        }
-        break;
-    }
-  });
 }

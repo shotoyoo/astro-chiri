@@ -99,7 +99,20 @@
 <script>
   import { initAudioPlayer } from './AudioPlayerScript';
   
-  document.addEventListener("DOMContentLoaded", () => {
+  const runInit = () => initAudioPlayer();
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", runInit, { once: true });
+  } else {
+    runInit();
+  }
+
+  document.addEventListener("astro:page-load", () => {
+    initAudioPlayer();
+  });
+
+  // Handle back/forward cache restore
+  window.addEventListener("pageshow", () => {
     initAudioPlayer();
   });
 </script>
