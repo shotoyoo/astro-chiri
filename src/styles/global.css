@@ -122,6 +122,11 @@ html.dark {
   --selection: rgba(255, 255, 255, 0.08);
   --code-bg: rgba(255, 255, 255, 0.04);
   --mark: #545b37;
+  --card: #242424;
+  --card-foreground: rgba(255, 255, 255, 0.9);
+  /* Brighter accent for links in dark mode */
+  --primary: #7ec8ff;
+  --primary-foreground: #0b1720;
 
   /* Syntax Theme  */
   --astro-code-foreground: rgba(255, 255, 255, 0.9);

@@ -1,6 +1,6 @@
 ---
 title: 'レパートリー'
-description: '東京大学音楽部合唱団コールアカデミーの演奏楽曲一覧'
+description: 'やまなみコーラスクラブの演奏楽曲一覧'
 pubDate: 2025-12-03
 ---
 
@@ -27,13 +27,17 @@ import { groupedByComposer, sortedComposers } from '@/utils/repertoire'
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    background-color: color-mix(in srgb, var(--card) 92%, transparent);
+    border-radius: var(--radius, 10px);
+    padding: 0.5rem;
   }
 
   .composer-group {
     padding: 0.25rem;
     margin-top: 0rem;
     margin-bottom: 0rem;
-    background-color: var(--card);
+    background-color: color-mix(in srgb, var(--card) 96%, transparent);
+    border-radius: var(--radius, 10px);
   }
 
   .composer-name {
