@@ -1,6 +1,6 @@
 ---
 import AudioCard from '@/components/widgets/AudioCard.astro'
-import { getCollection } from 'astro:content'
+import { getAudioCsv } from '@/utils/audioCsv'
 
 interface Props {
   /**
@@ -16,11 +16,7 @@ const { directory = '', description = '' } = Astro.props
 // Generate unique ID for this instance
 const containerId = `random-audio-container-${directory || 'root'}`
 
-// Get all audio files and filter by directory if specified
-const allAudio = await getCollection('audio')
-const filteredAudio = directory 
-  ? allAudio.filter(audio => audio.id.startsWith(`${directory}/`))
-  : allAudio.filter(audio => !audio.id.includes('/')) // Root level only if no directory specified
+const filteredAudio = directory ? getAudioCsv(directory) : []
 ---
 
 <h3 class="mb-1" style="margin-left: 1rem;">{description}</h3>
@@ -28,12 +24,11 @@ const filteredAudio = directory
   {filteredAudio.map((audio) => (
     <div class="audio-card-item hidden" data-audio-id={audio.id}>
       <AudioCard
-        title={audio.data.title}
-        cover={audio.data.cover || "cover-images/defaultCover.jpg"}
-        desc={audio.data.description}
-        audioUrl={audio.data.audioUrl}
-        youtubeId={audio.data.youtubeId}
-        date={audio.data.date}
+        title={audio.title}
+        desc={audio.description}
+        audioUrl={audio.audioUrl}
+        youtubeId={audio.youtubeId}
+        date={audio.date}
         id={audio.id}
       />
     </div>
