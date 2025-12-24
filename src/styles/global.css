@@ -341,3 +341,104 @@ main {
     @apply bg-background text-foreground;
   }
 }
+
+/*** 雪玉（共通） ***/
+.snows {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.snows div {
+  position: fixed; /*画面固定*/
+  top: -250px; /*初期位置*/
+  left: 0;
+  border-radius: 50%; /*丸型*/
+  background: #fff; /*雪の色*/
+  opacity: 0.9; /*若干透明に*/
+}
+
+/*** 小さい雪玉 ***/
+.snows div:nth-child(1) {
+  width: 10px;
+  height: 10px;
+  filter: blur(2px); /*ぼかし*/
+  /* ±240pxの範囲で影(複製)を作る */
+  box-shadow:
+    5vw -40px 0 #fff,
+    10vw 150px #fff,
+    15vw -230px #fff,
+    22vw 240px #fff,
+    30vw 120px #fff,
+    35vw -180px #fff,
+    44vw 240px #fff,
+    50vw 0 #fff,
+    60vw 180px #fff,
+    68vw 40px #fff,
+    74vw -130px #fff,
+    81vw -240px #fff,
+    88vw 100px #fff,
+    95vw 60px #fff;
+  animation: fall 12s linear infinite; /*落下*/
+}
+
+/*** 小さい雪玉2 ***/
+.snows div:nth-child(2) {
+  width: 10px;
+  height: 10px;
+  filter: blur(2px); /*ぼかし*/
+  /* ±240pxの範囲で影(複製)を作る */
+  box-shadow:
+    7vw 220px 0 #fff,
+    35vw 20px #fff,
+    68vw 100px #fff,
+    93vw -190px #fff;
+  animation: fall 12.5s linear infinite; /*落下*/
+  animation-delay: 6s; /*開始遅延*/
+}
+
+/*** 中ぐらいの雪玉 ***/
+.snows div:nth-child(3) {
+  width: 14px;
+  height: 14px;
+  filter: blur(3px); /*ぼかし*/
+  /* ±233pxの範囲で影(複製)を作る */
+  box-shadow:
+    12vw 5px 0 #fff,
+    32vw -100px #fff,
+    45vw -180px #fff,
+    68vw 40px #fff,
+    77vw 65px #fff,
+    94vw 230px #fff;
+  animation: fall 10s linear infinite; /*落下*/
+  animation-delay: 6s; /*開始遅延*/
+}
+
+/*** 大きめの雪玉 ***/
+.snows div:nth-child(4) {
+  width: 20px;
+  height: 20px;
+  filter: blur(8px); /*ぼかし*/
+  /* ±222pxの範囲で影(複製)を作る */
+  box-shadow:
+    40vw -200px #fff,
+    80vw 220px #fff;
+  animation: fall 7s linear infinite; /*落下*/
+  animation-delay: 4s; /*遅延*/
+}
+
+/*** 落下アニメーション ***/
+@keyframes fall {
+  0% {
+    top: -250px;
+  }
+  100% {
+    top: calc(100% + 250px);
+  }
+}
+
+/*** サンプル装飾用 ***/
+body {
+  background: #111;
+}

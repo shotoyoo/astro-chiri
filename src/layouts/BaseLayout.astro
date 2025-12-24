@@ -32,6 +32,13 @@ const finalWidth = shouldUseCustomWidth ? `${widthValue}rem` : '25rem'
   >
     <FaviconThemeSwitcher />
 
+    <div class="snows" aria-hidden="true">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+
     {
       fadeAnimation ? (
         <TransitionWrapper type={type} class="layout-wrapper">
