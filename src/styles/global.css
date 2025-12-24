@@ -33,7 +33,7 @@
   --spacing-m: -0.02em;
 
   /* Light Mode Colors (Default) */
-  --bg: #ffffff;
+  --bg: #e9ebef;
   --text-primary: rgba(0, 0, 0, 0.85);
   --text-secondary: rgba(0, 0, 0, 0.4);
   --text-tertiary: rgba(0, 0, 0, 0.24);
@@ -41,6 +41,7 @@
   --selection: rgba(0, 0, 0, 0.08);
   --code-bg: rgba(0, 0, 0, 0.04);
   --mark: #f3ffc4;
+  --snow-color: #c4dcff;
 
   /* Syntax Theme  */
   --astro-code-foreground: rgba(0, 0, 0, 0.85);
@@ -89,7 +90,7 @@
 
 /* Light Mode (Explicit) */
 html.light {
-  --bg: #ffffff;
+  --bg: #e9ebef;
   --text-primary: rgba(0, 0, 0, 0.85);
   --text-secondary: rgba(0, 0, 0, 0.4);
   --text-tertiary: rgba(0, 0, 0, 0.24);
@@ -97,6 +98,7 @@ html.light {
   --selection: rgba(0, 0, 0, 0.08);
   --code-bg: rgba(0, 0, 0, 0.04);
   --mark: #f3ffc4;
+  --snow-color: #c4dcff;
 
   /* Syntax Theme  */
   --astro-code-foreground: rgba(0, 0, 0, 0.85);
@@ -122,6 +124,7 @@ html.dark {
   --selection: rgba(255, 255, 255, 0.08);
   --code-bg: rgba(255, 255, 255, 0.04);
   --mark: #545b37;
+  --snow-color: #f3f7ff;
   --card: #242424;
   --card-foreground: rgba(255, 255, 255, 0.9);
   /* Brighter accent for links in dark mode */
@@ -343,94 +346,87 @@ main {
 }
 
 /*** 雪玉（共通） ***/
-.snows {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 20;
-}
-
-.snows div {
+.snows div{
   position: fixed; /*画面固定*/
   top: -250px; /*初期位置*/
   left: 0;
   border-radius: 50%; /*丸型*/
-  background: #fff; /*雪の色*/
+  background: var(--snow-color); /*雪の色*/
   opacity: 0.9; /*若干透明に*/
 }
 
 /*** 小さい雪玉 ***/
-.snows div:nth-child(1) {
+.snows div:nth-child(1){
   width: 10px;
   height: 10px;
   filter: blur(2px); /*ぼかし*/
   /* ±240pxの範囲で影(複製)を作る */
   box-shadow:
-    5vw -40px 0 #fff,
-    10vw 150px #fff,
-    15vw -230px #fff,
-    22vw 240px #fff,
-    30vw 120px #fff,
-    35vw -180px #fff,
-    44vw 240px #fff,
-    50vw 0 #fff,
-    60vw 180px #fff,
-    68vw 40px #fff,
-    74vw -130px #fff,
-    81vw -240px #fff,
-    88vw 100px #fff,
-    95vw 60px #fff;
-  animation: fall 12s linear infinite; /*落下*/
+    5vw -40px 0 var(--snow-color),
+    10vw 150px var(--snow-color),
+    15vw -230px var(--snow-color),
+    22vw 240px var(--snow-color),
+    30vw 120px var(--snow-color),
+    35vw -180px var(--snow-color),
+    44vw 240px var(--snow-color),
+    50vw 0 var(--snow-color),
+    60vw 180px var(--snow-color),
+    68vw 40px var(--snow-color),
+    74vw -130px var(--snow-color),
+    81vw -240px var(--snow-color),
+    88vw 100px var(--snow-color),
+    95vw 60px var(--snow-color);
+    animation: fall 12s linear infinite;/*落下*/
 }
 
 /*** 小さい雪玉2 ***/
-.snows div:nth-child(2) {
+.snows div:nth-child(2){
   width: 10px;
   height: 10px;
   filter: blur(2px); /*ぼかし*/
   /* ±240pxの範囲で影(複製)を作る */
   box-shadow:
-    7vw 220px 0 #fff,
-    35vw 20px #fff,
-    68vw 100px #fff,
-    93vw -190px #fff;
-  animation: fall 12.5s linear infinite; /*落下*/
+    7vw 220px 0 var(--snow-color),
+    35vw 20px var(--snow-color),
+    68vw 100px var(--snow-color),
+    93vw -190px var(--snow-color);
+  animation: fall 12.5s linear infinite;/*落下*/
   animation-delay: 6s; /*開始遅延*/
 }
 
 /*** 中ぐらいの雪玉 ***/
-.snows div:nth-child(3) {
+.snows div:nth-child(3){
   width: 14px;
   height: 14px;
   filter: blur(3px); /*ぼかし*/
   /* ±233pxの範囲で影(複製)を作る */
   box-shadow:
-    12vw 5px 0 #fff,
-    32vw -100px #fff,
-    45vw -180px #fff,
-    68vw 40px #fff,
-    77vw 65px #fff,
-    94vw 230px #fff;
+    12vw 5px 0 var(--snow-color),
+    32vw -100px var(--snow-color),
+    45vw -180px var(--snow-color),
+    68vw 40px var(--snow-color),
+    77vw 65px var(--snow-color),
+    94vw 230px var(--snow-color);
   animation: fall 10s linear infinite; /*落下*/
   animation-delay: 6s; /*開始遅延*/
 }
 
 /*** 大きめの雪玉 ***/
-.snows div:nth-child(4) {
+.snows div:nth-child(4){
   width: 20px;
   height: 20px;
   filter: blur(8px); /*ぼかし*/
   /* ±222pxの範囲で影(複製)を作る */
   box-shadow:
-    40vw -200px #fff,
-    80vw 220px #fff;
+    40vw -200px var(--snow-color),
+    80vw 220px var(--snow-color);
   animation: fall 7s linear infinite; /*落下*/
   animation-delay: 4s; /*遅延*/
 }
 
 /*** 落下アニメーション ***/
-@keyframes fall {
-  0% {
+@keyframes fall{
+  0%{
     top: -250px;
   }
   100% {
@@ -439,6 +435,6 @@ main {
 }
 
 /*** サンプル装飾用 ***/
-body {
+/* body{
   background: #111;
-}
+} */
