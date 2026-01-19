@@ -22,17 +22,19 @@ interface RepertoireItem {
 // Read and parse concert CSV file
 const concertCsvPath = 'src/content/history/concert.csv'
 const concertCsvContent = readFileSync(concertCsvPath, 'utf-8')
-const { data: parsedData } = Papa.parse(concertCsvContent, { 
-  header: true, 
-  skipEmptyLines: true 
+const { data: parsedData } = Papa.parse(concertCsvContent, {
+  header: true,
+  comments: '#',
+  skipEmptyLines: true,
 }) as { data: Concert[] }
 
 // Read and parse repertoire CSV file to build song mapping
 const repertoireCsvPath = 'src/content/history/repertoire.csv'
 const repertoireCsvContent = readFileSync(repertoireCsvPath, 'utf-8')
-const { data: repertoireData } = Papa.parse(repertoireCsvContent, { 
-  header: true, 
-  skipEmptyLines: true 
+const { data: repertoireData } = Papa.parse(repertoireCsvContent, {
+  header: true,
+  comments: '#',
+  skipEmptyLines: true,
 }) as { data: RepertoireItem[] }
 
 // Build song mapping from repertoire data

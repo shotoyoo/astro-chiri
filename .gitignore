@@ -28,6 +28,6 @@ pnpm-debug.log*
 .netlify/
 
 **Zone.Identifier
-src/content/audio/youtube_related
+**youtube_related
 
 request.token

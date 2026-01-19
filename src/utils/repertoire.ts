@@ -4,9 +4,10 @@ import Papa from 'papaparse'
 // Read and parse CSV file
 const csvFilePath = 'src/content/history/repertoire.csv'
 const csvContent = readFileSync(csvFilePath, 'utf-8')
-const { data: parsedData } = Papa.parse(csvContent, { 
-  header: true, 
-  skipEmptyLines: true 
+const { data: parsedData } = Papa.parse(csvContent, {
+  header: true,
+  comments: '#',
+  skipEmptyLines: true,
 }) as { data: Array<{ title: string; composer: string; lyricist: string }> }
 
 // Group by composer

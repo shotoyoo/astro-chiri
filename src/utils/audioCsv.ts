@@ -20,6 +20,7 @@ function safeParse(path: string): AudioCsvEntry[] {
     const csv = readFileSync(path, 'utf-8')
     const { data } = Papa.parse(csv, {
       header: true,
+      comments: '#',
       skipEmptyLines: true,
       transform: (value) => (typeof value === 'string' ? value.trim() : value),
     }) as { data: AudioCsvEntry[] }
