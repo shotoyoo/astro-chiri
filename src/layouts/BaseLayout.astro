@@ -15,6 +15,8 @@ const fadeAnimation = themeConfig.general.fadeAnimation
 const widthValue = Math.min(parseFloat(contentWidth), 50)
 const shouldUseCustomWidth = widthValue > 25
 const finalWidth = shouldUseCustomWidth ? `${widthValue}rem` : '25rem'
+const month = new Date().getMonth() + 1
+const seasonEffect = month >= 12 || month <= 2 ? 'winter' : month >= 3 && month <= 4 ? 'spring' : 'none'
 ---
 
 <html lang={language}>
@@ -25,6 +27,7 @@ const finalWidth = shouldUseCustomWidth ? `${widthValue}rem` : '25rem'
   </head>
   <body
     data-centered={themeConfig.general.centeredLayout}
+    data-season={seasonEffect}
     style={`
       max-width: ${finalWidth};
       ${shouldUseCustomWidth ? `--content-width: ${widthValue}rem;` : ''}
@@ -33,6 +36,13 @@ const finalWidth = shouldUseCustomWidth ? `${widthValue}rem` : '25rem'
     <FaviconThemeSwitcher />
 
     <div class="snows" aria-hidden="true">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+
+    <div class="sakuras" aria-hidden="true">
       <div></div>
       <div></div>
       <div></div>

@@ -1,0 +1,219 @@
+---
+import { themeConfig } from '@/config'
+import IndexLayout from '@/layouts/IndexLayout.astro'
+
+const pageTitle = 'クイズ'
+const pageDescription = '440Hzと442Hzを聞き分ける1秒クイズ'
+---
+
+<IndexLayout title={`${pageTitle} - ${themeConfig.site.title}`} description={pageDescription}>
+  <section class="quiz-section">
+    <h1 class="text-2xl font-semibold">{pageTitle}</h1>
+    <p class="text-sm text-base-content/70">
+      隠しページへようこそ！442Hzはどちらでしょうか？
+    </p>
+
+    <div class="quiz-card">
+      <p class="text-sm text-base-content/70">
+      </p>
+
+      <div class="button-grid">
+        <button class="tone-button" data-label="A" type="button">A</button>
+        <button class="tone-button" data-label="B" type="button">B</button>
+      </div>
+
+      <div class="answer-area" aria-live="polite" id="answer-text">
+      </div>
+
+      <div class="action-row">
+        <button class="reveal-button" id="reveal-answer" type="button">正解を見る</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      const frequencyOptions = [440, 442]
+      const toneButtons = Array.from(document.querySelectorAll('[data-label]'))
+      const answerText = document.getElementById('answer-text')
+      const revealButton = document.getElementById('reveal-answer')
+
+      let audioCtx
+      let assignments = []
+
+      const shuffleAssignments = () => {
+        assignments = [...frequencyOptions].sort(() => Math.random() - 0.5)
+      }
+
+      const getAudioContext = () => {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume()
+        }
+        return audioCtx
+      }
+
+      const playTone = (frequency) => {
+        const ctx = getAudioContext()
+        const oscillator = ctx.createOscillator()
+        const gainNode = ctx.createGain()
+
+        oscillator.type = 'sine'
+        oscillator.frequency.value = frequency
+        // Keep level steady for 1s, with tiny ramps to avoid clicks
+        const duration = 0.75
+        gainNode.gain.setValueAtTime(0.0001, ctx.currentTime)
+        gainNode.gain.linearRampToValueAtTime(0.14, ctx.currentTime + 0.01)
+        gainNode.gain.setValueAtTime(0.14, ctx.currentTime + duration - 0.01)
+        gainNode.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + duration)
+
+        oscillator.connect(gainNode)
+        gainNode.connect(ctx.destination)
+
+        oscillator.start()
+        oscillator.stop(ctx.currentTime + duration)
+      }
+
+      const resetQuiz = () => {
+        shuffleAssignments()
+        answerText.textContent = ''
+        revealButton.textContent = '正解を見る'
+        revealButton.dataset.state = 'reveal'
+      }
+
+      resetQuiz()
+
+      toneButtons.forEach((button, index) => {
+        button.addEventListener('click', () => {
+          const frequency = assignments[index]
+          playTone(frequency)
+        })
+      })
+
+      revealButton?.addEventListener('click', () => {
+        if (revealButton.dataset.state !== 'revealed') {
+          const labelA = toneButtons[0]?.dataset.label || 'A'
+          const labelB = toneButtons[1]?.dataset.label || 'B'
+          const freqA = assignments[0]
+          const freqB = assignments[1]
+          answerText.textContent = `${labelA} が${freqA}Hz、${labelB} が${freqB}Hzです。`
+          revealButton.textContent = 'もう一回やる'
+          revealButton.dataset.state = 'revealed'
+        } else {
+          resetQuiz()
+        }
+      })
+    })()
+  </script>
+
+  <style>
+    .quiz-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem 0 2rem;
+    }
+
+    .quiz-card {
+      background: var(--card, rgba(0, 0, 0, 0.03));
+      color: var(--card-foreground, inherit);
+      border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+      border-radius: var(--radius, 10px);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .tone-button {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border, rgba(0, 0, 0, 0.1));
+      background: var(--secondary, rgba(0, 0, 0, 0.04));
+      color: var(--text-primary);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+      cursor: pointer;
+    }
+
+    .tone-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      background: var(--accent, rgba(0, 0, 0, 0.06));
+    }
+
+    .tone-button:active {
+      transform: translateY(0);
+    }
+
+    .answer-area {
+      border-radius: 0.75rem;
+      padding: 0.85rem 1rem;
+      background: var(--secondary, rgba(0, 0, 0, 0.03));
+      border: 1px dashed var(--border, rgba(0, 0, 0, 0.12));
+      color: var(--text-primary);
+      min-height: 2.5rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .reveal-button {
+      padding: 0.6rem 1rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--primary, rgba(0, 0, 0, 0.15));
+      background: var(--primary, rgba(0, 0, 0, 0.85));
+      color: var(--primary-foreground, #fff);
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    }
+
+    .reveal-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      filter: brightness(1.05);
+    }
+
+    .reveal-button:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 640px) {
+      .quiz-card {
+        padding: 1rem;
+      }
+
+      .tone-button,
+      .reveal-button {
+        width: 100%;
+      }
+
+      .action-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</IndexLayout>
