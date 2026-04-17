@@ -16,7 +16,7 @@ const widthValue = Math.min(parseFloat(contentWidth), 50)
 const shouldUseCustomWidth = widthValue > 25
 const finalWidth = shouldUseCustomWidth ? `${widthValue}rem` : '25rem'
 const month = new Date().getMonth() + 1
-const seasonEffect = month >= 12 || month <= 2 ? 'winter' : month >= 3 && month <= 4 ? 'spring' : 'none'
+const seasonEffect = month >= 12 || month <= 2 ? 'winter' : month === 3 ? 'spring' : 'none'
 ---
 
 <html lang={language}>

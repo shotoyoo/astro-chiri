@@ -36,6 +36,24 @@
   line-height: 1.75;
   margin: 1.5em 0 1.25em 0;
 }
+
+.prose .concert-year {
+  display: inline-block;
+  font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  margin: 2rem 0 1rem;
+  padding: 0.2rem 0.35rem;
+  /* border-left: 0.35rem solid var(--primary);
+  border-radius: 0.35rem; */
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
+}
+
+[data-theme='dark'] .prose .concert-year {
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
+}
+
 .prose h3,
 .prose h4,
 .prose h5 {
