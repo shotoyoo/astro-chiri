@@ -1,11 +1,14 @@
 import { getCollection, type CollectionEntry } from 'astro:content'
+import { execFile } from 'node:child_process'
 import { stat } from 'node:fs/promises'
 import { resolve } from 'node:path'
+import { promisify } from 'node:util'
 
-const POSTS_DIR = resolve(process.cwd(), 'src/content/posts')
-const HISTORY_DIR = resolve(process.cwd(), 'src/content/history')
-const CONCERT_CSV_PATH = resolve(HISTORY_DIR, 'concert.csv')
-const REPERTOIRE_CSV_PATH = resolve(HISTORY_DIR, 'repertoire.csv')
+const execFileAsync = promisify(execFile)
+
+const POSTS_DIR = 'src/content/posts'
+const CONCERT_CSV_PATH = 'src/content/history/concert.csv'
+const REPERTOIRE_CSV_PATH = 'src/content/history/repertoire.csv'
 
 const SPECIAL_DATE_SOURCES: Record<string, string> = {
   '演奏予定・演奏記録': CONCERT_CSV_PATH,
@@ -13,16 +16,45 @@ const SPECIAL_DATE_SOURCES: Record<string, string> = {
   'レパートリー': REPERTOIRE_CSV_PATH
 }
 
-async function getPostModifiedDate(postId: string): Promise<Date | null> {
-  const candidates = [
-    resolve(POSTS_DIR, postId),
-    resolve(POSTS_DIR, `${postId}.md`),
-    resolve(POSTS_DIR, `${postId}.mdx`)
+function getPostPathCandidates(postId: string): string[] {
+  return [
+    `${POSTS_DIR}/${postId}`,
+    `${POSTS_DIR}/${postId}.md`,
+    `${POSTS_DIR}/${postId}.mdx`
   ]
+}
+
+async function getGitLastCommitDate(filePath: string): Promise<Date | null> {
+  try {
+    const { stdout } = await execFileAsync(
+      'git',
+      ['log', '-1', '--format=%cI', '--', filePath],
+      { cwd: process.cwd() }
+    )
+
+    const rawDate = stdout.trim()
+    if (!rawDate) {
+      return null
+    }
+
+    const parsedDate = new Date(rawDate)
+    return Number.isNaN(parsedDate.valueOf()) ? null : parsedDate
+  } catch {
+    return null
+  }
+}
+
+async function getPostModifiedDate(candidates: string[]): Promise<Date | null> {
+  for (const filePath of candidates) {
+    const gitDate = await getGitLastCommitDate(filePath)
+    if (gitDate) {
+      return gitDate
+    }
+  }
 
   for (const filePath of candidates) {
     try {
-      const fileStat = await stat(filePath)
+      const fileStat = await stat(resolve(process.cwd(), filePath))
       return fileStat.mtime
     } catch {
       // Try the next candidate path.
@@ -57,9 +89,8 @@ export async function getSortedFilteredPosts() {
         calculatedPubDate = tomorrow
       } else {
         const specialDateSource = SPECIAL_DATE_SOURCES[post.data.title]
-        const modifiedDate = specialDateSource
-          ? await getPostModifiedDate(specialDateSource)
-          : await getPostModifiedDate(post.id)
+        const dateCandidates = specialDateSource ? [specialDateSource] : getPostPathCandidates(post.id)
+        const modifiedDate = await getPostModifiedDate(dateCandidates)
 
         if (modifiedDate) {
           calculatedPubDate = modifiedDate
