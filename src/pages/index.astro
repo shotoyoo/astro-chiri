@@ -4,6 +4,7 @@ import About from '@/components/widgets/About.astro'
 import RandomAudio from '@/components/widgets/RandomAudio.astro'
 import AudioPlayer from '@/components/widgets/AudioPlayer.astro'
 import PostList from '@/components/widgets/PostList.astro'
+import NoticeContent from '@/content/notices/home.md'
 import X from '@/components/widgets/X.astro'
 import { themeConfig } from '@/config'
 import { getSortedFilteredPosts } from '@/utils/draft'
@@ -14,6 +15,10 @@ const posts = await getSortedFilteredPosts()
 <IndexLayout title={themeConfig.site.title} description={themeConfig.site.description}>
   <About />
   <main>
+    <h2 class="mb-2">❗ お知らせ</h2>
+    <div class="notice mb-6">
+      <NoticeContent />
+    </div>
     <h2 class="mb-2">🎵 聴くもの (リロードするたびに変わるかもしれません)</h2>
     <RandomAudio directory="recently" description="最近の音" />
     <RandomAudio directory="pickup" description="ピックアップ過去音源" />
@@ -31,6 +36,11 @@ const posts = await getSortedFilteredPosts()
 </IndexLayout>
 
 <style>
+  .notice {
+    margin-left: 1rem;
+    margin-bottom: 2rem;
+  }
+
   :global(a[href="/quiz"]),
   :global(a[href="/quiz"]:hover),
   :global(a[href="/quiz"]:focus-visible) {

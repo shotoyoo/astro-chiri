@@ -36,4 +36,11 @@ const audio = defineCollection({
   })
 })
 
-export const collections = { posts, about, audio }
+const notices = defineCollection({
+  // Load Markdown files in the `src/content/notices/` directory.
+  loader: glob({ base: './src/content/notices', pattern: '**/*.md' }),
+  // Type-check frontmatter using a schema
+  schema: z.object({})
+})
+
+export const collections = { posts, about, audio, notices }
