@@ -29,5 +29,8 @@ pnpm-debug.log*
 
 **Zone.Identifier
 **youtube_related
+!youtube_related/
+youtube_related/*
+!youtube_related/upload_pending_audio_to_youtube.sh
 
 request.token

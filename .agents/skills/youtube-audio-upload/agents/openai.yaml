@@ -1,0 +1,4 @@
+interface:
+  display_name: "YouTube音声アップロード"
+  short_description: "音声の動画化・YouTube投稿・CSV登録を一括実行"
+  default_prompt: "Use $youtube-audio-upload to upload pending audio files to YouTube and update recently.csv."

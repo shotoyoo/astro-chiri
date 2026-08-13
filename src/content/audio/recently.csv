@@ -9,7 +9,9 @@ id,title,description,audioUrl,youtubeId,date
 #haru-alleluia,Alleluia (E. Hagenberg),本番の様子,https://www.youtube.com/watch?v=ggh4T2MEsSE,ggh4T2MEsSE,2026-03-01
 #haru-tasogare,たそがれ (木下牧子),本番の様子,https://www.youtube.com/watch?v=0NWxyW2dzQs,0NWxyW2dzQs,2026-03-01
 #haru-shupu,シュプール (木下牧子),本番の様子,https://www.youtube.com/watch?v=JqoD_4wcyRw,JqoD_4wcyRw,2026-03-01
-yu-alleluia,Alleluia,練習の様子,https://www.youtube.com/watch?v=2r1o9SMZzWk,2r1o9SMZzWk,2026-06-14
-yu-blue,The Blue Ridge,練習の様子,https://www.youtube.com/watch?v=j846habGLHw,j846habGLHw,2026-06-14
+#yu-alleluia,Alleluia,練習の様子,https://www.youtube.com/watch?v=2r1o9SMZzWk,2r1o9SMZzWk,2026-06-14
+#yu-blue,The Blue Ridge,練習の様子,https://www.youtube.com/watch?v=j846habGLHw,j846habGLHw,2026-06-14
 yu-wexford,Wexford Carol,練習の様子,https://www.youtube.com/watch?v=vr-2uORvoX4,vr-2uORvoX4,2026-06-14
-yu-olove,O Love,練習の様子,https://www.youtube.com/watch?v=TPckhfbk0bk,TPckhfbk0bk,2026-06-14
+#yu-olove,O Love,練習の様子,https://www.youtube.com/watch?v=TPckhfbk0bk,TPckhfbk0bk,2026-06-14
+"20260802_O nata lux","20260802_O nata lux","2026年8月2日の練習","https://youtu.be/FPfbaP_3aoo","FPfbaP_3aoo","2026-08-02"
+"20260802_Puer Nobis","20260802_Puer Nobis","2026年8月2日の練習","https://youtu.be/X1ON-41N4T0","X1ON-41N4T0","2026-08-02"
