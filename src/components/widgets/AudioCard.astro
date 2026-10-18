@@ -1,71 +1,88 @@
 ---
-import dayjs from "dayjs";
-import localizedFormat from "dayjs/plugin/localizedFormat";
+import dayjs from 'dayjs'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
 
-dayjs.extend(localizedFormat);
+dayjs.extend(localizedFormat)
 
-const { title, desc, audioUrl, youtubeId, id, date } = Astro.props;
-const displayDate = dayjs(date).format("ll");
+const { title, desc, audioUrl, youtubeId, id, date } = Astro.props
+const displayDate = dayjs(date).format('ll')
 
 // YouTubeリンクの場合の処理
-const isYouTube = !!youtubeId;
-const displayTitle = title;
-const youtubeUrl = youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : null;
-const youtubeThumbnail = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg` : null;
+const isYouTube = !!youtubeId
+const displayTitle = title
+const youtubeUrl = youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : null
+const youtubeThumbnail = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg` : null
 ---
 
 <div class="audio-card min-h-[100px]" data-active="false">
   <div class="hero-content flex-row items-start py-2 gap-3">
-    {isYouTube && youtubeThumbnail && (
-      <div class="shrink-0 relative" style="width:120px;height:67px;">
-        <a href={youtubeUrl} target="_blank" rel="noopener noreferrer">
-          <img 
-            src={youtubeThumbnail} 
-            alt={`${title} thumbnail`}
-            class="youtube-thumbnail rounded-lg block"
-            width="120"
-            height="67"
-          />
-        </a>
-        <button
-          class="youtube-thumb-btn absolute left-0 bottom-0 m-2 flex items-center justify-center bg-transparent"
-          aria-label="YouTube動画を再生"
-          type="button"
-          data-youtube-id={youtubeId}
-          style="display:none;"
-        ></button>
-      </div>
-    )}
-    <div class="w-full grow overflow-auto">
-      {isYouTube && youtubeUrl ? (
-        <h2 class="audio-card-title truncate font-semibold flex items-center gap-1">
-          <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" class="youtube-title-link flex items-center gap-1">
-            <svg class="youtube-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;">
-              <rect width="24" height="24" rx="4" fill="#FF0000"/>
-              <polygon points="7,6 19,12 7,18" fill="#fff"/>
-            </svg>
-            {displayTitle}
+    {
+      isYouTube && youtubeThumbnail && (
+        <div class="shrink-0 relative" style="width:120px;height:67px;">
+          <a href={youtubeUrl} target="_blank" rel="noopener noreferrer">
+            <img
+              src={youtubeThumbnail}
+              alt={`${title} thumbnail`}
+              class="youtube-thumbnail rounded-lg block"
+              width="120"
+              height="67"
+            />
           </a>
-        </h2>
-      ) : (
-        <h2 class="audio-card-title truncate font-semibold">{displayTitle}</h2>
-      )}
+          <button
+            class="youtube-thumb-btn absolute left-0 bottom-0 m-2 flex items-center justify-center bg-transparent"
+            aria-label="YouTube動画を再生"
+            type="button"
+            data-youtube-id={youtubeId}
+            style="display:none;"
+          />
+        </div>
+      )
+    }
+    <div class="w-full grow overflow-auto">
+      {
+        isYouTube && youtubeUrl ? (
+          <h2 class="audio-card-title truncate font-semibold flex items-center gap-1">
+            <a
+              href={youtubeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="youtube-title-link flex items-center gap-1"
+            >
+              <svg
+                class="youtube-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                style="vertical-align:middle;"
+              >
+                <rect width="24" height="24" rx="4" fill="#FF0000" />
+                <polygon points="7,6 19,12 7,18" fill="#fff" />
+              </svg>
+              {displayTitle}
+            </a>
+          </h2>
+        ) : (
+          <h2 class="audio-card-title truncate font-semibold">{displayTitle}</h2>
+        )
+      }
       <p class="text-xs font-medium opacity-90">
         {displayDate}
       </p>
       <p class="my-1 line-clamp-2 text-xs md:text-sm">{desc}</p>
     </div>
 
-    <label
-      class="btn btn-circle swap md:mx-2 shrink-0"
-      aria-label="Toggle play and pause"
-    >
+    <label class="btn btn-circle swap md:mx-2 shrink-0" aria-label="Toggle play and pause">
       <input
         type="checkbox"
         class="card-pay-buttons"
         id={id}
         data-audio-url={audioUrl}
         data-youtube-id={youtubeId}
+        data-audio-title={title}
+        data-audio-description={desc}
+        data-audio-href={youtubeUrl ?? audioUrl}
         aria-label="Play and pause"
       />
       <div class="swap-off">
@@ -146,7 +163,7 @@ const youtubeThumbnail = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/mq
   }
 
   /* Optional: Highlight active card */
-  .audio-card[data-active="true"] {
+  .audio-card[data-active='true'] {
     background-color: rgba(0, 0, 0, 0.05); /* subtle highlight */
     border-radius: 0.5rem;
   }

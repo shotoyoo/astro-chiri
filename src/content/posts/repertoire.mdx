@@ -5,6 +5,7 @@ pubDate: 2025-12-03
 ---
 
 import { groupedByComposer, sortedComposers } from '@/utils/repertoire'
+import CompactAudioButton from '@/components/widgets/CompactAudioButton.astro'
 
 <div class="history-list">
   {sortedComposers.map((composer) => (
@@ -14,6 +15,9 @@ import { groupedByComposer, sortedComposers } from '@/utils/repertoire'
         {groupedByComposer[composer].map((item) => (
           <li class="song-item">
             <span class="song-title">{item.title}</span>
+            {item.audio && (
+              <CompactAudioButton audio={item.audio} buttonId={`repertoire-audio-${item.ID}`} />
+            )}
             <span class="lyricist">（text: {item.lyricist}）</span>
           </li>
         ))}
@@ -61,6 +65,9 @@ import { groupedByComposer, sortedComposers } from '@/utils/repertoire'
     color: var(--text-primary);
     padding-left: 1.5rem;
     position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
   }
 
   .song-item::before {
@@ -77,5 +84,13 @@ import { groupedByComposer, sortedComposers } from '@/utils/repertoire'
     font-size: var(--font-size-s);
     color: var(--text-tertiary);
     margin-left: 0.5rem;
+  }
+
+  @media (max-width: 480px) {
+    .lyricist {
+      flex-basis: 100%;
+      margin-left: 0;
+      padding-left: 0.25rem;
+    }
   }
 `}</style>

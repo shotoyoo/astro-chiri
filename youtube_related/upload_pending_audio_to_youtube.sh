@@ -3,21 +3,61 @@
 set -Eeuo pipefail
 
 # for_youtube_upload 直下の音声ファイルを動画に変換し、YouTube へ順次アップロードする。
-# Usage: ./upload_pending_audio_to_youtube.sh [DESCRIPTION]
+# Usage:
+#   ./upload_pending_audio_to_youtube.sh [DESCRIPTION]
+#   ./upload_pending_audio_to_youtube.sh --list
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 INPUT_DIR="$SCRIPT_DIR/for_youtube_upload"
 DONE_DIR="$INPUT_DIR/done"
 IMAGE="$SCRIPT_DIR/image/yamanami_icon_round.png"
 UPLOADER="${YOUTUBE_UPLOADER:-$SCRIPT_DIR/youtubeuploader.exe}"
-CSV_PATH="$SCRIPT_DIR/../src/content/audio/recently.csv"
-DESCRIPTION="${1:-練習の様子}"
+AUDIO_CSV_PATH="$SCRIPT_DIR/../src/content/audio/audio.csv"
+RECENTLY_CSV_PATH="$SCRIPT_DIR/../src/content/audio/recently.csv"
+DESCRIPTION="練習の様子"
+LIST_ONLY=false
 
 TARGET_W=1920
 TARGET_H=1080
 
-# 毎回 OAuth 認証をやり直し、失効済みトークンを使わないようにする。
-rm -f -- "$SCRIPT_DIR/request.token"
+usage() {
+  cat <<'EOF'
+Usage:
+  ./upload_pending_audio_to_youtube.sh [DESCRIPTION]
+  ./upload_pending_audio_to_youtube.sh --list
+
+Options:
+  --list       List pending audio files without uploading them.
+  -h, --help   Show this help.
+
+DESCRIPTION defaults to: 練習の様子
+EOF
+}
+
+if (( $# > 1 )); then
+  usage >&2
+  exit 2
+fi
+
+if (( $# == 1 )); then
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --list)
+      LIST_ONLY=true
+      ;;
+    --*)
+      printf 'Unknown option: %s\n' "$1" >&2
+      usage >&2
+      exit 2
+      ;;
+    *)
+      DESCRIPTION="$1"
+      ;;
+  esac
+fi
 
 require_command() {
   if ! command -v "$1" >/dev/null 2>&1; then
@@ -26,24 +66,38 @@ require_command() {
   fi
 }
 
-require_command ffmpeg
-
 csv_escape() {
   local value="${1//\"/\"\"}"
   printf '"%s"' "$value"
 }
 
-append_to_recently_csv() {
+csv_has_id() {
+  local path="$1"
+  local id="$2"
+
+  awk -v target="$id" '
+    NR > 1 && (index($0, target ",") == 1 || index($0, "\"" target "\",") == 1) {
+      found = 1
+    }
+    END { exit found ? 0 : 1 }
+  ' "$path"
+}
+
+register_audio() {
   local id="$1"
   local title="$2"
   local description="$3"
   local video_id="$4"
   local recording_date="$5"
-  local video_url="https://youtu.be/$video_id"
 
-  if grep -Fq -- "$video_id" "$CSV_PATH"; then
-    printf 'Already present in recently.csv: %s\n' "$video_id"
-    return
+  if grep -Fq -- "$video_id" "$AUDIO_CSV_PATH"; then
+    printf 'Video ID is already present in audio.csv: %s\n' "$video_id" >&2
+    return 1
+  fi
+
+  if csv_has_id "$AUDIO_CSV_PATH" "$id"; then
+    printf 'Audio ID is already present in audio.csv: %s\n' "$id" >&2
+    return 1
   fi
 
   {
@@ -51,37 +105,23 @@ append_to_recently_csv() {
     printf ','
     csv_escape "$title"
     printf ','
-    csv_escape "$description"
-    printf ','
-    csv_escape "$video_url"
-    printf ','
     csv_escape "$video_id"
     printf ','
     csv_escape "$recording_date"
     printf '\n'
-  } >> "$CSV_PATH"
-  printf 'Appended to recently.csv: %s\n' "$id"
+  } >> "$AUDIO_CSV_PATH"
+  printf 'Appended to audio.csv: %s\n' "$id"
+
+  if ! csv_has_id "$RECENTLY_CSV_PATH" "$id"; then
+    {
+      csv_escape "$id"
+      printf ','
+      csv_escape "$description"
+      printf '\n'
+    } >> "$RECENTLY_CSV_PATH"
+    printf 'Appended to recently.csv: %s\n' "$id"
+  fi
 }
-
-# Windows が付加する代替データストリームの残骸を配下全体から削除する。
-find "$INPUT_DIR" -type f -name '*:Zone.Identifier' -delete
-
-if [[ ! -f "$IMAGE" ]]; then
-  printf 'Image file not found: %s\n' "$IMAGE" >&2
-  exit 1
-fi
-
-if [[ ! -f "$UPLOADER" ]]; then
-  printf 'YouTube uploader not found: %s\n' "$UPLOADER" >&2
-  exit 1
-fi
-
-if [[ ! -f "$CSV_PATH" ]]; then
-  printf 'recently.csv not found: %s\n' "$CSV_PATH" >&2
-  exit 1
-fi
-
-mkdir -p -- "$DONE_DIR"
 
 mapfile -d '' AUDIO_FILES < <(
   find "$INPUT_DIR" -maxdepth 1 -type f \
@@ -94,6 +134,53 @@ if (( ${#AUDIO_FILES[@]} == 0 )); then
   printf 'No audio files found in %s\n' "$INPUT_DIR"
   exit 0
 fi
+
+if [[ "$LIST_ONLY" == true ]]; then
+  printf 'Pending audio files (%d):\n' "${#AUDIO_FILES[@]}"
+  printf '  %s\n' "${AUDIO_FILES[@]##*/}"
+  exit 0
+fi
+
+require_command ffmpeg
+
+if [[ ! -f "$IMAGE" ]]; then
+  printf 'Image file not found: %s\n' "$IMAGE" >&2
+  exit 1
+fi
+
+if [[ ! -f "$UPLOADER" ]]; then
+  printf 'YouTube uploader not found: %s\n' "$UPLOADER" >&2
+  exit 1
+fi
+
+if [[ ! -f "$AUDIO_CSV_PATH" ]]; then
+  printf 'audio.csv not found: %s\n' "$AUDIO_CSV_PATH" >&2
+  exit 1
+fi
+
+if [[ ! -f "$RECENTLY_CSV_PATH" ]]; then
+  printf 'recently.csv not found: %s\n' "$RECENTLY_CSV_PATH" >&2
+  exit 1
+fi
+
+mkdir -p -- "$DONE_DIR"
+
+# 全ファイルをアップロードする前に確認し、途中で名前衝突により止まるのを防ぐ。
+for audio in "${AUDIO_FILES[@]}"; do
+  done_audio="$DONE_DIR/$(basename -- "$audio")"
+  if [[ -e "$done_audio" ]]; then
+    printf 'A file with the same name already exists in done: %s\n' \
+      "$done_audio" >&2
+    exit 1
+  fi
+done
+
+# Windows が付加する代替データストリームの残骸を配下全体から削除する。
+find "$INPUT_DIR" -type f -name '*:Zone.Identifier' -delete
+
+# 毎回 OAuth 認証をやり直し、失効済みトークンを使わないようにする。
+# --help、--list、事前検査の失敗時には認証状態を変更しない。
+rm -f -- "$SCRIPT_DIR/request.token"
 
 TEMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/youtube-audio-upload.XXXXXX")"
 trap 'rm -rf -- "$TEMP_DIR"' EXIT
@@ -113,12 +200,6 @@ for audio in "${AUDIO_FILES[@]}"; do
   output="$TEMP_DIR/${title}.mp4"
   upload_log="$TEMP_DIR/${title}.upload.log"
   done_audio="$DONE_DIR/$filename"
-
-  if [[ -e "$done_audio" ]]; then
-    printf 'A file with the same name already exists in done: %s\n' \
-      "$done_audio" >&2
-    exit 1
-  fi
 
   printf '\n[%d/%d] Converting: %s\n' \
     "$(( ${#VIDEO_IDS[@]} + 1 ))" "${#AUDIO_FILES[@]}" "$filename"
@@ -153,7 +234,7 @@ for audio in "${AUDIO_FILES[@]}"; do
 
   VIDEO_TITLES+=("$title")
   VIDEO_IDS+=("$video_id")
-  append_to_recently_csv \
+  register_audio \
     "$id" "$title" "$DESCRIPTION" "$video_id" "$recording_date"
   mv -- "$audio" "$done_audio"
   printf 'Uploaded: %s (https://youtu.be/%s)\n' "$video_id" "$video_id"

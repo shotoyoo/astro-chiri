@@ -21,21 +21,6 @@ const about = defineCollection({
   schema: z.object({})
 })
 
-const audio = defineCollection({
-  // Load all Markdown files in `src/content/audio/` directory including subdirectories.
-  loader: glob({ base: './src/content/audio', pattern: '**/*.md' }),
-  // Type-check frontmatter using a schema
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    audioUrl: z.string(), // YouTube URL or local audio file path
-    youtubeId: z.string().optional(), // YouTube video ID (e.g., "dQw4w9WgXcQ")
-    date: z.string(),
-    size: z.number().optional(),
-    cover: z.string().optional()
-  })
-})
-
 const notices = defineCollection({
   // Load Markdown files in the `src/content/notices/` directory.
   loader: glob({ base: './src/content/notices', pattern: '**/*.md' }),
@@ -43,4 +28,4 @@ const notices = defineCollection({
   schema: z.object({})
 })
 
-export const collections = { posts, about, audio, notices }
+export const collections = { posts, about, notices }

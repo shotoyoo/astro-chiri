@@ -1,5 +1,7 @@
 # Chiri 🌸
 
+このサイトの表示内容の更新方法と音源のアップロード手順は、[やまなみコーラスクラブ HP 更新ガイド](MAINTENANCE.md)を参照してください。
+
 ![screenshot-light](public/screenshots/screenshot-light.png)
 ![screenshot-dark](public/screenshots/screenshot-dark.png)
 

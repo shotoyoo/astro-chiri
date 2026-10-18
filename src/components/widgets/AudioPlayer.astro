@@ -1,118 +1,175 @@
 <div
   id="audio-player-container"
-  class="bg-base-100 fixed bottom-0 left-1/2 z-20 hidden h-16 -translate-x-1/2 items-center justify-center px-5 opacity-0 transition-opacity duration-500"
-  style="width: fit-content; max-width: 90vw;"
+  class="bg-base-100 fixed bottom-0 left-1/2 z-20 hidden min-h-16 -translate-x-1/2 items-center justify-center gap-4 px-4 py-2 opacity-0 shadow-lg transition-opacity duration-500"
 >
   <audio id="audio-element" src="" preload="metadata"></audio>
   <!-- YouTube player (hidden) -->
   <div id="youtube-player" style="display: none;"></div>
 
-  <span
-    id="audio-loading"
-    class="loading loading-spinner loading-md hidden min-w-[1.5rem]"></span>
+  <div class="now-playing min-w-0" aria-live="polite">
+    <a id="now-playing-title" href="#" target="_blank" rel="noopener noreferrer"></a>
+    <p id="now-playing-description"></p>
+  </div>
 
-  <label id="audio-control" class="swap md:mx-2 hidden shrink-0">
-    <input type="checkbox" id="play-icon" aria-label="Play and pause" />
-    <div class="swap-off">
-      <!-- Play icon -->
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-5 w-5"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <polygon
-          points="5 3 19 12 5 21 5 3"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"></polygon>
-      </svg>
-    </div>
-    <div class="swap-on">
-      <!-- Pause icon -->
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-5 w-5"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <rect x="6" y="4" width="4" height="16" stroke-width="2"></rect>
-        <rect x="14" y="4" width="4" height="16" stroke-width="2"></rect>
-      </svg>
-    </div>
-  </label>
+  <div class="player-controls">
+    <span id="audio-loading" class="loading loading-spinner loading-md hidden min-w-[1.5rem]"
+    ></span>
 
-  <span id="current-time" class="mr-2 ml-2">0:00</span> /
-  <span id="duration" class="ml-2">0:00</span>
+    <label id="audio-control" class="swap hidden shrink-0">
+      <input type="checkbox" id="play-icon" aria-label="Play and pause" />
+      <div class="swap-off">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <polygon
+            points="5 3 19 12 5 21 5 3"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"></polygon>
+        </svg>
+      </div>
+      <div class="swap-on">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <rect x="6" y="4" width="4" height="16" stroke-width="2"></rect>
+          <rect x="14" y="4" width="4" height="16" stroke-width="2"></rect>
+        </svg>
+      </div>
+    </label>
 
-  <input
-    id="seek-slider"
-    type="range"
-    min="0"
-    max="0"
-    value="0"
-    class="range range-xs mx-5"
-  />
+    <span id="current-time">0:00</span> /
+    <span id="duration">0:00</span>
 
-  <label class="swap ml-3">
-    <input id="mute-icon" type="checkbox" aria-label="Mute and Unmute" />
-    <div class="swap-off">
-      <!-- Volume On icon -->
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M11 5l-6 6H2v2h3l6 6V5zm8.5 3.5a5 5 0 010 7M17 9a2.5 2.5 0 010 3"
-        ></path>
-      </svg>
-    </div>
-    <div class="swap-on">
-      <!-- Volume Off icon -->
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M9 9l6 6m0-6l-6 6M11 5l-6 6H2v2h3l6 6V5z"></path>
-      </svg>
-    </div>
-  </label>
+    <input id="seek-slider" type="range" min="0" max="0" value="0" class="range range-xs" />
+
+    <label class="swap shrink-0">
+      <input id="mute-icon" type="checkbox" aria-label="Mute and Unmute" />
+      <div class="swap-off">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M11 5l-6 6H2v2h3l6 6V5zm8.5 3.5a5 5 0 010 7M17 9a2.5 2.5 0 010 3"></path>
+        </svg>
+      </div>
+      <div class="swap-on">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 9l6 6m0-6l-6 6M11 5l-6 6H2v2h3l6 6V5z"></path>
+        </svg>
+      </div>
+    </label>
+  </div>
 </div>
 
-<script>
-  import { initAudioPlayer } from './AudioPlayerScript';
-  
-  const runInit = () => initAudioPlayer();
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", runInit, { once: true });
-  } else {
-    runInit();
+<style>
+  #audio-player-container {
+    width: min(52rem, 95vw);
   }
 
-  document.addEventListener("astro:page-load", () => {
-    initAudioPlayer();
-  });
+  .now-playing {
+    width: min(15rem, 32vw);
+  }
+
+  #now-playing-title {
+    display: block;
+    overflow: hidden;
+    color: inherit;
+    font-size: var(--font-size-s);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.25;
+    text-decoration: underline;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #now-playing-description {
+    overflow: hidden;
+    margin: 0.15rem 0 0;
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .player-controls {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  #seek-slider {
+    min-width: 6rem;
+  }
+
+  @media (max-width: 640px) {
+    #audio-player-container {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.4rem;
+    }
+
+    .now-playing {
+      width: 100%;
+    }
+
+    .player-controls {
+      width: 100%;
+    }
+
+    #seek-slider {
+      min-width: 0;
+    }
+  }
+</style>
+
+<script>
+  import { initAudioPlayer } from './AudioPlayerScript'
+
+  const runInit = () => initAudioPlayer()
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runInit, { once: true })
+  } else {
+    runInit()
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    initAudioPlayer()
+  })
 
   // Handle back/forward cache restore
-  window.addEventListener("pageshow", () => {
-    initAudioPlayer();
-  });
+  window.addEventListener('pageshow', () => {
+    initAudioPlayer()
+  })
 </script>

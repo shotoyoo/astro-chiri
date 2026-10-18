@@ -1,0 +1,82 @@
+---
+import type { AudioDefinition } from '@/utils/audioCsv'
+
+interface Props {
+  audio: AudioDefinition
+  buttonId: string
+}
+
+const { audio, buttonId } = Astro.props
+const audioUrl = `https://youtu.be/${audio.youtubeId}`
+---
+
+<label
+  class="repertoire-audio-button swap"
+  title={`${audio.title}を再生`}
+  aria-label={`${audio.title}を再生・一時停止`}
+>
+  <input
+    type="checkbox"
+    class="card-pay-buttons"
+    id={buttonId}
+    data-audio-url={audioUrl}
+    data-youtube-id={audio.youtubeId}
+    data-audio-title={audio.title}
+    data-audio-description={`録音日: ${audio.date}`}
+    data-audio-href={audioUrl}
+    aria-label={`${audio.title}を再生・一時停止`}
+  />
+  <span class="swap-off" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <polygon
+        points="6 4 20 12 6 20 6 4"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"></polygon>
+    </svg>
+  </span>
+  <span class="swap-on" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="6" y="5" width="4" height="14" stroke-width="2"></rect>
+      <rect x="14" y="5" width="4" height="14" stroke-width="2"></rect>
+    </svg>
+  </span>
+</label>
+
+<style>
+  .repertoire-audio-button {
+    display: inline-grid;
+    width: 1.28rem;
+    height: 1.28rem;
+    min-width: 1.28rem;
+    min-height: 1.28rem;
+    margin-left: 0.35rem;
+    place-items: center;
+    vertical-align: middle;
+    color: var(--text-secondary);
+    background: color-mix(in srgb, var(--text-primary) 10%, var(--card));
+    border: 1px solid color-mix(in srgb, var(--text-primary) 18%, transparent);
+    border-radius: 9999px;
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .repertoire-audio-button:hover {
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--text-primary) 18%, var(--card));
+    transform: scale(1.05);
+  }
+
+  .repertoire-audio-button:focus-within {
+    outline: 2px solid color-mix(in srgb, var(--text-primary) 55%, transparent);
+    outline-offset: 2px;
+  }
+
+  .repertoire-audio-button svg {
+    display: block;
+    width: 0.68rem;
+    height: 0.68rem;
+  }
+</style>
